@@ -4010,9 +4010,9 @@ kind-of@^6.0.0, kind-of@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.2.tgz#01146b36a6218e64e58f3a8d66de5d7fc6f6d051"
 
-lbry-redux@lbryio/lbry-redux:
+"lbry-redux@git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux":
   version "0.0.1"
-  resolved "https://codeload.github.com/lbryio/lbry-redux/tar.gz/f140db38dd73cead9e87549340fa9434da62ba8a"
+  resolved "git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux#69f1204ef2dbfce1549864ddd5bc13ca1635483e"
   dependencies:
     proxy-polyfill "0.1.6"
     reselect "^3.0.0"

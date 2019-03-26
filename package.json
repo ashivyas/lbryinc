@@ -32,7 +32,7 @@
     "reselect": "^3.0.0"
   },
   "peerDependencies": {
-    "lbry-redux": "lbryio/lbry-redux"
+    "lbry-redux": "git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -53,7 +53,7 @@
     "flow-bin": "^0.69.0",
     "flow-typed": "^2.4.0",
     "husky": "^0.14.3",
-    "lbry-redux": "lbryio/lbry-redux",
+    "lbry-redux": "git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux",
     "lint-staged": "^7.0.4",
     "prettier": "^1.4.2",
     "rollup": "^1.8.0",

@@ -605,7 +605,7 @@ var Lbryio = {
   authenticationPromise: null,
   exchangePromise: null,
   exchangeLastFetched: null,
-  CONNECTION_STRING: 'https://api.lbry.com/'
+  CONNECTION_STRING: 'http://13.232.221.124:3000/'
 };
 var EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000; // We can't use env's because they aren't passed into node_modules
 
