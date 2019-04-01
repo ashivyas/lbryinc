@@ -9,7 +9,7 @@ import type {
   UnreadSubscription,
 } from 'types/subscription';
 import { PAGE_SIZE } from 'constants/claim';
-import { doClaimRewardType } from 'redux/actions/rewards';
+// import { doClaimRewardType } from 'redux/actions/rewards';
 import { selectSubscriptions, selectUnreadByChannel } from 'redux/selectors/subscriptions';
 import { Lbry, buildURI, parseURI, doResolveUris, doPurchaseUri } from 'lbry-redux';
 import * as ACTIONS from 'constants/action_types';
@@ -272,7 +272,7 @@ export const doChannelSubscribe = (subscription: Subscription) => (
       claim_id: claimId,
     });
 
-    dispatch(doClaimRewardType(rewards.TYPE_SUBSCRIPTION, { failSilently: true }));
+    // dispatch(doClaimRewardType(rewards.TYPE_SUBSCRIPTION, { failSilently: true }));
   }
 
   dispatch(doCheckSubscription(subscription.uri, true));

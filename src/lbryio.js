@@ -7,7 +7,7 @@ const Lbryio = {
   authenticationPromise: null,
   exchangePromise: null,
   exchangeLastFetched: null,
-  CONNECTION_STRING: 'http://13.232.221.124:3000/',
+  CONNECTION_STRING: 'http://localhost:3000/',
 };
 
 const EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;

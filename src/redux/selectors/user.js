@@ -7,9 +7,15 @@ export const selectAuthenticationIsPending = createSelector(
   state => state.authenticationIsPending
 );
 
-export const selectUserIsPending = createSelector(selectState, state => state.userIsPending);
+export const selectUserIsPending = createSelector(
+  selectState,
+  state => state.userIsPending
+);
 
-export const selectUser = createSelector(selectState, state => state.user);
+export const selectUser = createSelector(
+  selectState,
+  state => state.user
+);
 
 export const selectUserEmail = createSelector(
   selectUser,
@@ -18,7 +24,7 @@ export const selectUserEmail = createSelector(
 
 export const selectUserPhone = createSelector(
   selectUser,
-  user => (user ? user.phone_number : null)
+  user => (user ? user.mobileNo : null)
 );
 
 export const selectUserCountryCode = createSelector(
@@ -98,7 +104,10 @@ export const selectUserIsVerificationCandidate = createSelector(
   user => user && (!user.has_verified_email || !user.is_identity_verified)
 );
 
-export const selectAccessToken = createSelector(selectState, state => state.accessToken);
+export const selectAccessToken = createSelector(
+  selectState,
+  state => state.accessToken
+);
 
 export const selectUserInviteStatusIsPending = createSelector(
   selectState,
@@ -110,7 +119,10 @@ export const selectUserInvitesRemaining = createSelector(
   state => state.invitesRemaining
 );
 
-export const selectUserInvitees = createSelector(selectState, state => state.invitees);
+export const selectUserInvitees = createSelector(
+  selectState,
+  state => state.invitees
+);
 
 export const selectUserInviteStatusFailed = createSelector(
   selectUserInvitesRemaining,

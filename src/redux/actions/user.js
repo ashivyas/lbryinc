@@ -1,11 +1,11 @@
 import { ACTIONS, Lbry, doToast } from 'lbry-redux';
-import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
+import { doRewardList } from 'redux/actions/rewards';
+import { doFetchFeaturedUris } from 'redux/actions/homepage';
 import {
   selectEmailToVerify,
   selectPhoneToVerify,
   selectUserCountryCode,
 } from 'redux/selectors/user';
-import rewards from 'rewards';
 import Lbryio from 'lbryio';
 
 export function doFetchInviteStatus() {
@@ -51,7 +51,7 @@ export function doInstallNew(appVersion, os = null) {
 }
 
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
-export function doAuthenticate(appVersion, os = null) {
+export function doAuthenticate() {
   return dispatch => {
     dispatch({
       type: ACTIONS.AUTHENTICATION_STARTED,
@@ -64,9 +64,6 @@ export function doAuthenticate(appVersion, os = null) {
           type: ACTIONS.AUTHENTICATION_SUCCESS,
           data: { user },
         });
-        dispatch(doRewardList());
-        dispatch(doFetchInviteStatus());
-        doInstallNew(appVersion, os);
       })
       .catch(error => {
         dispatch({
@@ -144,12 +141,10 @@ export function doUserPhoneNew(phone, countryCode) {
       });
     };
 
-    Lbryio.call(
-      'user',
-      'phone_number_new',
-      { phone_number: phone, country_code: countryCode },
-      'post'
-    ).then(success, failure);
+    Lbryio.call('user_mobile', 'new', { mobileNo: phone, country_code: countryCode }, 'post').then(
+      success,
+      failure
+    );
   };
 }
 
@@ -171,11 +166,11 @@ export function doUserPhoneVerify(verificationCode) {
     });
 
     Lbryio.call(
-      'user',
+      'user_mobile',
       'phone_number_confirm',
       {
         verification_code: verificationCode,
-        phone_number: phoneNumber,
+        mobileNo: phoneNumber,
         country_code: countryCode,
       },
       'post'
@@ -186,7 +181,7 @@ export function doUserPhoneVerify(verificationCode) {
             type: ACTIONS.USER_PHONE_VERIFY_SUCCESS,
             data: { user },
           });
-          dispatch(doClaimRewardType(rewards.TYPE_NEW_USER));
+          dispatch(doFetchFeaturedUris());
         }
       })
       .catch(error => dispatch(doUserPhoneVerifyFailure(error)));
@@ -339,7 +334,6 @@ export function doUserIdentityVerify(stripeToken) {
             type: ACTIONS.USER_IDENTITY_VERIFY_SUCCESS,
             data: { user },
           });
-          dispatch(doClaimRewardType(rewards.TYPE_NEW_USER));
         } else {
           throw new Error('Your identity is still not verified. This should not happen.'); // shouldn't happen
         }
