@@ -41,7 +41,7 @@ export const selectEmailToVerify = createSelector(
 export const selectPhoneToVerify = createSelector(
   selectState,
   selectUserPhone,
-  (state, userPhone) => state.phoneToVerify || userPhone
+  (state, userPhone) => state.phoneToVerify || state.isLoggedIn || userPhone
 );
 
 export const selectUserIsRewardApproved = createSelector(
@@ -52,6 +52,11 @@ export const selectUserIsRewardApproved = createSelector(
 export const selectEmailNewIsPending = createSelector(
   selectState,
   state => state.emailNewIsPending
+);
+
+export const selectUserLoggedOut = createSelector(
+  selectState,
+  state => state.isLoggedIn
 );
 
 export const selectEmailNewErrorMessage = createSelector(
@@ -76,7 +81,7 @@ export const selectEmailVerifyErrorMessage = createSelector(
 
 export const selectPhoneNewIsPending = createSelector(
   selectState,
-  state => state.phoneNewIsPending
+  state => state.phoneNewIsPending && state.otpSent
 );
 
 export const selectPhoneVerifyIsPending = createSelector(

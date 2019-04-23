@@ -28,6 +28,14 @@ reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) =>
     authenticationIsPending: false,
     userIsPending: false,
     user: action.data.user,
+    isLoggedIn: action.data.user.is_identity_verified,
+  });
+
+reducers[ACTIONS.LOGOUT_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    authenticationIsPending: false,
+    userIsPending: false,
+    user: action.data.user,
   });
 
 reducers[ACTIONS.AUTHENTICATION_FAILURE] = state =>
@@ -47,6 +55,7 @@ reducers[ACTIONS.USER_FETCH_SUCCESS] = (state, action) =>
   Object.assign({}, state, {
     userIsPending: false,
     user: action.data.user,
+    isLoggedIn: action.data.user.is_identity_verified,
   });
 
 reducers[ACTIONS.USER_FETCH_FAILURE] = state =>
@@ -80,6 +89,7 @@ reducers[ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) =>
   Object.assign({}, state, {
     phoneNewIsPending: false,
     phoneNewErrorMessage: action.data.error,
+    isLoggedIn: false,
   });
 
 reducers[ACTIONS.USER_PHONE_VERIFY_STARTED] = state =>
@@ -93,6 +103,12 @@ reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) =>
     phoneToVerify: '',
     phoneVerifyIsPending: false,
     user: action.data.user,
+    isLoggedIn: !state.isLoggedIn,
+  });
+
+reducers[ACTIONS.USER_LOGOUT_SUCCESS] = state =>
+  Object.assign({}, state, {
+    isLoggedIn: false,
   });
 
 reducers[ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) =>
@@ -167,6 +183,7 @@ reducers[ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) =>
     identityVerifyIsPending: false,
     identityVerifyErrorMessage: '',
     user: action.data.user,
+    isLoggedIn: action.data.user.is_identity_verified,
   });
 
 reducers[ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) =>
