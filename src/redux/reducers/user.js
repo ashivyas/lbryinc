@@ -31,13 +31,6 @@ reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) =>
     isLoggedIn: action.data.user.is_identity_verified,
   });
 
-reducers[ACTIONS.LOGOUT_SUCCESS] = (state, action) =>
-  Object.assign({}, state, {
-    authenticationIsPending: false,
-    userIsPending: false,
-    user: action.data.user,
-  });
-
 reducers[ACTIONS.AUTHENTICATION_FAILURE] = state =>
   Object.assign({}, state, {
     authenticationIsPending: false,
