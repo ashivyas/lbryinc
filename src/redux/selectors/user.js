@@ -41,7 +41,7 @@ export const selectEmailToVerify = createSelector(
 export const selectPhoneToVerify = createSelector(
   selectState,
   selectUserPhone,
-  (state, userPhone) => state.phoneToVerify || state.isLoggedIn || userPhone
+  (state, userPhone) => state.phoneToVerify || userPhone
 );
 
 export const selectUserIsRewardApproved = createSelector(

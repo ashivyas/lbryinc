@@ -103,7 +103,7 @@ reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) =>
     phoneToVerify: '',
     phoneVerifyIsPending: false,
     user: action.data.user,
-    isLoggedIn: !state.isLoggedIn,
+    isLoggedIn: action.data.user.is_identity_verified,
   });
 
 reducers[ACTIONS.USER_LOGOUT_SUCCESS] = state =>

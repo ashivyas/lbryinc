@@ -159,7 +159,6 @@ export function doUserPhoneVerify(verificationCode) {
   return (dispatch, getState) => {
     const phoneNumber = selectPhoneToVerify(getState());
     const countryCode = selectUserCountryCode(getState());
-    const isLoggedIn = selectPhoneToVerify(getState());
 
     dispatch({
       type: ACTIONS.USER_PHONE_VERIFY_STARTED,
@@ -173,12 +172,11 @@ export function doUserPhoneVerify(verificationCode) {
         verification_code: verificationCode,
         mobileNo: phoneNumber,
         country_code: countryCode,
-        isLoggedIn,
       },
       'post'
     )
       .then(user => {
-        if (user.is_identity_verified && user.isLoggedIn) {
+        if (user.is_identity_verified) {
           dispatch({
             type: ACTIONS.USER_PHONE_VERIFY_SUCCESS,
             data: { user },
@@ -193,9 +191,7 @@ export function doUserPhoneVerify(verificationCode) {
 export function doUserLogout() {
   return dispatch => {
     Lbryio.call('user', 'logout', {}, 'post').then(data => {
-      console.log('Entered then');
       if (data.user_id === '') {
-        console.log('User constant is ', ACTIONS.USER_LOGOUT_SUCCESS);
         dispatch({
           type: ACTIONS.USER_LOGOUT_SUCCESS,
           data: { data },
