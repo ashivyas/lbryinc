@@ -77,3 +77,9 @@ export const SET_SYNC_STARTED = 'SET_SYNC_STARTED';
 export const SET_SYNC_FAILED = 'SET_SYNC_FAILED';
 export const SET_SYNC_COMPLETED = 'SET_SYNC_COMPLETED';
 export const SET_DEFAULT_ACCOUNT = 'SET_DEFAULT_ACCOUNT';
+
+// Likes
+export const LIKE_ON_CLICK = 'LIKE_ON_CLICK';
+export const LIKE_COUNT = 'LIKE_COUNT';
+export const LIKE_CHECK = 'LIKE_CHECK';
+export const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';

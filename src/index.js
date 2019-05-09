@@ -61,6 +61,7 @@ export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage';
 export { doFetchViewCount } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
+export { doLikeOnClick, doDislikeOnClick, doLikeCount } from 'redux/actions/likes';
 
 // reducers
 export { authReducer } from 'redux/reducers/auth';
@@ -72,6 +73,7 @@ export { blacklistReducer } from 'redux/reducers/blacklist';
 export { homepageReducer } from 'redux/reducers/homepage';
 export { statsReducer } from 'redux/reducers/stats';
 export { syncReducer } from 'redux/reducers/sync';
+export { likesReducer } from 'redux/reducers/likes';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from 'redux/selectors/auth';
@@ -142,6 +144,7 @@ export {
   selectUserInviteNewErrorMessage,
   selectUserInviteReferralLink,
 } from 'redux/selectors/user';
+export { likeSelector, dislikeSelector, countSelector } from 'redux/selectors/likes';
 export {
   makeSelectFetchingCostInfoForUri,
   makeSelectCostInfoForUri,
