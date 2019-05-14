@@ -1,44 +1,50 @@
-import { ACTIONS } from 'lbry-redux';
-
-const reducers = {};
+import { handleActions } from 'util/redux-utils';
+import * as ACTIONS from 'constants/action_types';
 
 const defaultState = {
   likeStatus: false,
-  isLiked: false,
   likeCount: 0,
   dislikeStatus: false,
   dislikeCount: 0,
 };
 
-reducers[ACTIONS.LIKE_ON_CLICK] = (state, action) =>
-  Object.assign({}, state, {
-    likeStatus: !state.likeStatus,
-    isLiked: action.data.isLiked,
-  });
+export const likesReducer = handleActions(
+  {
+    [ACTIONS.LIKE_ON_CLICK]: (state, action) => {
+      const { likeStatus } = action.data;
 
-reducers[ACTIONS.LIKE_COUNT] = (state, action) =>
-  Object.assign({}, state, {
-    likes: action.data.likeCount,
-    dislikes: action.data.dislikeCount,
-  });
-reducers[ACTIONS.DISLIKE_ON_CLICK] = (state, action) =>
-  Object.assign({}, state, {
-    dislikeStatus: !state.dislikeStatus,
-    isDisliked: action.data.isDisliked,
-  });
+      return {
+        ...state,
+        likeCount: likeStatus ? state.likeCount + 1 : state.likeCount - 1,
+        dislikeCount: state.dislikeStatus ? state.dislikeCount - 1 : state.dislikeCount,
+        likeStatus,
+        dislikeStatus: false,
+      };
+    },
 
-// reducers[ACTIONS.DISLIKE_COUNT] = async(state, action) =>
-//   Object.assign({}, state, {
-//     dislikeCount: action.data.dislikeCount,
-//   });
+    [ACTIONS.DISLIKE_ON_CLICK]: (state, action) => {
+      const { dislikeStatus } = action.data;
 
-reducers[ACTIONS.LIKE_CHECK] = (state, action) =>
-  Object.assign({}, state, {
-    likeCheck: !state.likeCheck,
-  });
+      return {
+        ...state,
+        likeCount: state.likeStatus ? state.likeCount - 1 : state.likeCount,
+        dislikeCount: dislikeStatus ? state.dislikeCount + 1 : state.dislikeCount - 1,
+        dislikeStatus,
+        likeStatus: false,
+      };
+    },
 
-export function likesReducer(state = defaultState, action) {
-  const handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
+    [ACTIONS.LIKE_COUNT]: (state, action) => {
+      const { likeCount, dislikeCount, likeStatus, dislikeStatus } = action.data;
+
+      return {
+        ...state,
+        likeCount,
+        dislikeCount,
+        likeStatus,
+        dislikeStatus,
+      };
+    },
+  },
+  defaultState
+);

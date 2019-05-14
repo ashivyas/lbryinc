@@ -144,7 +144,12 @@ export {
   selectUserInviteNewErrorMessage,
   selectUserInviteReferralLink,
 } from 'redux/selectors/user';
-export { likeSelector, dislikeSelector, countSelector } from 'redux/selectors/likes';
+export {
+  likeSelector,
+  dislikeSelector,
+  likeCountSelector,
+  dislikeCountSelector,
+} from 'redux/selectors/likes';
 export {
   makeSelectFetchingCostInfoForUri,
   makeSelectCostInfoForUri,

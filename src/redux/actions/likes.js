@@ -1,54 +1,43 @@
-import { ACTIONS, Lbry, doToast } from 'lbry-redux';
-import { doRewardList } from 'redux/actions/rewards';
 import Lbryio from 'lbryio';
+import * as ACTIONS from 'constants/action_types';
 
-export function doLikeOnClick(claimId) {
+export function doLikeOnClick(claimId, likeStatus) {
   return dispatch => {
-    // First call to check the likeStatus
-    Lbryio.call('likes', 'check', claimId, 'post').then(check => {
-      // Second call to compare and update the likeStatus
-      Lbryio.call('likes', 'like', { claim_id: claimId.claimId, liked: true }, 'post').then(res => {
-        dispatch({
-          type: ACTIONS.LIKE_ON_CLICK,
-          data: {
-            likeStatus: !check,
-            isLiked: res.liked,
-          },
-        });
+    Lbryio.call('likes', 'like', { claim_id: claimId, liked: likeStatus }, 'post').then(() => {
+      dispatch({
+        type: ACTIONS.LIKE_ON_CLICK,
+        data: {
+          likeStatus,
+        },
       });
     });
   };
 }
 
-export function doDislikeOnClick(claimId) {
+export function doDislikeOnClick(claimId, dislikeStatus) {
   return dispatch => {
-    // First call to check the likeStatus
-    Lbryio.call('likes', 'check', claimId, 'post').then(check => {
-      // Second call to compare and update the likeStatus
-      Lbryio.call('likes', 'dislike', { claim_id: claimId.claimId, disliked: true }, 'post').then(
-        res => {
-          dispatch({
-            type: ACTIONS.DISLIKE_ON_CLICK,
-            data: {
-              dislikeStatus: !check,
-              isDisliked: res.disliked,
-            },
-          });
-        }
-      );
-    });
+    Lbryio.call('likes', 'dislike', { claim_id: claimId, disliked: dislikeStatus }, 'post').then(() => {
+        dispatch({
+          type: ACTIONS.DISLIKE_ON_CLICK,
+          data: {
+            dislikeStatus,
+          },
+        });
+      }
+    );
   };
 }
 
 export function doLikeCount(claimId) {
   return dispatch => {
-    Lbryio.call('likes', 'count', { claim_id: claimId.claimId }, 'post').then(count => {
-      console.log('count inc', claimId.claimId);
+    Lbryio.call('likes', 'count', { claim_id: claimId }, 'post').then(count => {
       dispatch({
         type: ACTIONS.LIKE_COUNT,
         data: {
           likeCount: count.likes,
           dislikeCount: count.dislikes,
+          likeStatus: count.likeStatus,
+          dislikeStatus: count.dislikeStatus,
         },
       });
     });

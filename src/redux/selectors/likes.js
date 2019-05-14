@@ -4,15 +4,20 @@ export const selectState = state => state.likes || {};
 
 export const likeSelector = createSelector(
   selectState,
-  state => state.likeStatus && state.isLiked
+  state => state.likeStatus
 );
 
 export const dislikeSelector = createSelector(
   selectState,
-  state => state.dislikeStatus && state.isDisliked
+  state => state.dislikeStatus
 );
 
-export const countSelector = createSelector(
+export const likeCountSelector = createSelector(
   selectState,
-  state => state.likeCount && state.dislikeCount
+  state => state.likeCount
+);
+
+export const dislikeCountSelector = createSelector(
+  selectState,
+  state => state.dislikeCount
 );
