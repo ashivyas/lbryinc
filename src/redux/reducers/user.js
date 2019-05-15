@@ -14,6 +14,7 @@ const defaultState = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
+  usersDefaultState: [],
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = state =>
@@ -91,6 +92,13 @@ reducers[ACTIONS.USER_PHONE_VERIFY_STARTED] = state =>
     phoneVerifyErrorMessage: '',
   });
 
+reducers[ACTIONS.USER_VERIFY_ID] = (state, action) =>
+  Object.assign({}, state, {
+    isNewUser: action.data.user.isNew,
+    inputType: action.data.user.type,
+    input: action.data.user.value,
+  });
+
 reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) =>
   Object.assign({}, state, {
     phoneToVerify: '',
@@ -102,6 +110,8 @@ reducers[ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) =>
 reducers[ACTIONS.USER_LOGOUT_SUCCESS] = state =>
   Object.assign({}, state, {
     isLoggedIn: false,
+    isNewUser: undefined,
+    inputType: undefined,
   });
 
 reducers[ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) =>
@@ -125,6 +135,17 @@ reducers[ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
     user,
   });
 };
+
+reducers[ACTIONS.USER_EMAIL_LOGIN] = (state, action) =>
+  Object.assign({}, state, {
+    user: action.data,
+    isLoggedIn: action.data.data.is_identity_verified,
+  });
+
+reducers[ACTIONS.USER_GOOGLE_SUCCESS] = state =>
+  Object.assign({}, state, {
+    state,
+  });
 
 reducers[ACTIONS.USER_EMAIL_NEW_EXISTS] = (state, action) =>
   Object.assign({}, state, {

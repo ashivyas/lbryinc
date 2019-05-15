@@ -4,7 +4,7 @@ import { doFetchFeaturedUris } from 'redux/actions/homepage';
 import {
   selectEmailToVerify,
   selectPhoneToVerify,
-  selectUserCountryCode,
+  // selectUserCountryCode,
 } from 'redux/selectors/user';
 import Lbryio from 'lbryio';
 
@@ -141,10 +141,7 @@ export function doUserPhoneNew(phone, countryCode) {
       });
     };
 
-    Lbryio.call('user_mobile', 'new', { mobileNo: phone, country_code: countryCode }, 'post').then(
-      success,
-      failure
-    );
+    Lbryio.call('user_mobile', 'new', { mobileNo: phone }, 'post').then(success, failure);
   };
 }
 
@@ -158,7 +155,7 @@ export function doUserPhoneVerifyFailure(error) {
 export function doUserPhoneVerify(verificationCode) {
   return (dispatch, getState) => {
     const phoneNumber = selectPhoneToVerify(getState());
-    const countryCode = selectUserCountryCode(getState());
+    // const countryCode = selectUserCountryCode(getState());
 
     dispatch({
       type: ACTIONS.USER_PHONE_VERIFY_STARTED,
@@ -171,7 +168,7 @@ export function doUserPhoneVerify(verificationCode) {
       {
         verification_code: verificationCode,
         mobileNo: phoneNumber,
-        country_code: countryCode,
+        // country_code: countryCode,
       },
       'post'
     )
@@ -209,7 +206,7 @@ export function doUserEmailToVerify(email) {
   };
 }
 
-export function doUserEmailNew(email) {
+export function doUserEmailNew(email, password) {
   return dispatch => {
     dispatch({
       type: ACTIONS.USER_EMAIL_NEW_STARTED,
@@ -231,7 +228,7 @@ export function doUserEmailNew(email) {
       });
     };
 
-    Lbryio.call('user_email', 'new', { email, send_verification_email: true }, 'post')
+    Lbryio.call('user_email', 'new', { email, password, send_verification_email: true }, 'post')
       .catch(error => {
         if (error.response && error.response.status === 409) {
           return Lbryio.call(
@@ -244,6 +241,22 @@ export function doUserEmailNew(email) {
         throw error;
       })
       .then(success, failure);
+  };
+}
+
+export function doUserEmailLogin(email, password) {
+  return dispatch => {
+    Lbryio.call('user_email', 'login', { email, password }, 'post')
+      .then(data => {
+        dispatch({
+          type: ACTIONS.USER_EMAIL_LOGIN,
+          data: { data },
+        });
+        dispatch(doFetchFeaturedUris());
+      })
+      .catch(error => {
+        throw new Error('User Email Login Error ', error);
+      });
   };
 }
 
@@ -385,6 +398,30 @@ export function doUserInviteNew(email) {
           type: ACTIONS.USER_INVITE_NEW_FAILURE,
           data: { error },
         });
+      });
+  };
+}
+
+export function doUserCheckId(input) {
+  return dispatch => {
+    Lbryio.call('user', 'check_id', { input }, 'post')
+      .then(user => {
+        if (user.type === 'mobile') {
+          dispatch({
+            type: ACTIONS.USER_VERIFY_ID,
+            data: { user },
+          });
+          dispatch(doUserPhoneNew());
+        } else if (user.type === 'email') {
+          dispatch({
+            type: ACTIONS.USER_VERIFY_ID,
+            data: { user },
+          });
+          dispatch(doUserEmailNew());
+        } else throw new Error('Your email or mobile check gone wrong in Api');
+      })
+      .catch(error => {
+        throw new Error('User receiving Error ', error);
       });
   };
 }
