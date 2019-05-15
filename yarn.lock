@@ -4012,7 +4012,7 @@ kind-of@^6.0.0, kind-of@^6.0.2:
 
 "lbry-redux@git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux":
   version "0.0.1"
-  resolved "git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux#0355eed18cbb08cc3eb5e0f0c80e8d6c7e924686"
+  resolved "git+ssh://git-codecommit.us-east-1.amazonaws.com/v1/repos/lbry-redux#7c58be6710e161242f2d01e1639b6a05f781259d"
   dependencies:
     proxy-polyfill "0.1.6"
     reselect "^3.0.0"

@@ -704,7 +704,17 @@ Lbryio.getAuthToken = function () {
 };
 
 Lbryio.getCurrentUser = function () {
-  return Lbryio.call('user', 'me');
+  return Lbryio.call('user', 'me').then(function (user) {
+    if (user) return Promise.resolve(user);
+    return Promise.resolve({
+      id: null,
+      language: 'en',
+      primary_email: null,
+      has_verified_email: false,
+      is_identity_verified: false,
+      is_reward_approved: false
+    });
+  });
 };
 
 Lbryio.authenticate = function () {

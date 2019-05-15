@@ -93,7 +93,18 @@ Lbryio.getAuthToken = () =>
     }
   });
 
-Lbryio.getCurrentUser = () => Lbryio.call('user', 'me');
+Lbryio.getCurrentUser = () =>
+  Lbryio.call('user', 'me').then(user => {
+    if (user) return Promise.resolve(user);
+    return Promise.resolve({
+      id: null,
+      language: 'en',
+      primary_email: null,
+      has_verified_email: false,
+      is_identity_verified: false,
+      is_reward_approved: false,
+    });
+  });
 
 Lbryio.authenticate = () => {
   if (!Lbryio.enabled) {
