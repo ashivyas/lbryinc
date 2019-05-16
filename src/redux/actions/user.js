@@ -411,7 +411,7 @@ export function doUserCheckId(input) {
             type: ACTIONS.USER_VERIFY_ID,
             data: { user },
           });
-          dispatch(doUserPhoneNew());
+          dispatch(doUserPhoneNew(user.value));
         } else if (user.type === 'email') {
           dispatch({
             type: ACTIONS.USER_VERIFY_ID,
