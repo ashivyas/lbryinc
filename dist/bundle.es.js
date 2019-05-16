@@ -78,7 +78,12 @@ const GET_SYNC_COMPLETED = 'GET_SYNC_COMPLETED';
 const SET_SYNC_STARTED = 'SET_SYNC_STARTED';
 const SET_SYNC_FAILED = 'SET_SYNC_FAILED';
 const SET_SYNC_COMPLETED = 'SET_SYNC_COMPLETED';
-const SET_DEFAULT_ACCOUNT = 'SET_DEFAULT_ACCOUNT';
+const SET_DEFAULT_ACCOUNT = 'SET_DEFAULT_ACCOUNT'; // Likes
+
+const LIKE_ON_CLICK = 'LIKE_ON_CLICK';
+const LIKE_COUNT = 'LIKE_COUNT';
+const LIKE_CHECK = 'LIKE_CHECK';
+const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -144,7 +149,11 @@ var action_types = /*#__PURE__*/Object.freeze({
   SET_SYNC_STARTED: SET_SYNC_STARTED,
   SET_SYNC_FAILED: SET_SYNC_FAILED,
   SET_SYNC_COMPLETED: SET_SYNC_COMPLETED,
-  SET_DEFAULT_ACCOUNT: SET_DEFAULT_ACCOUNT
+  SET_DEFAULT_ACCOUNT: SET_DEFAULT_ACCOUNT,
+  LIKE_ON_CLICK: LIKE_ON_CLICK,
+  LIKE_COUNT: LIKE_COUNT,
+  LIKE_CHECK: LIKE_CHECK,
+  DISLIKE_ON_CLICK: DISLIKE_ON_CLICK
 });
 
 const Lbryio = {
@@ -152,7 +161,7 @@ const Lbryio = {
   authenticationPromise: null,
   exchangePromise: null,
   exchangeLastFetched: null,
-  CONNECTION_STRING: 'https://api.lbry.com/'
+  CONNECTION_STRING: 'http://13.232.221.124:3000/'
 };
 const EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000; // We can't use env's because they aren't passed into node_modules
 
@@ -244,7 +253,17 @@ Lbryio.getAuthToken = () => new Promise(resolve => {
   }
 });
 
-Lbryio.getCurrentUser = () => Lbryio.call('user', 'me');
+Lbryio.getCurrentUser = () => Lbryio.call('user', 'me').then(user => {
+  if (user) return Promise.resolve(user);
+  return Promise.resolve({
+    id: null,
+    language: 'en',
+    primary_email: null,
+    has_verified_email: false,
+    is_identity_verified: false,
+    is_reward_approved: false
+  });
+});
 
 Lbryio.authenticate = () => {
   if (!Lbryio.enabled) {
@@ -678,17 +697,25 @@ const selectAuthenticationIsPending = reselect.createSelector(selectState$1, sta
 const selectUserIsPending = reselect.createSelector(selectState$1, state => state.userIsPending);
 const selectUser = reselect.createSelector(selectState$1, state => state.user);
 const selectUserEmail = reselect.createSelector(selectUser, user => user ? user.primary_email : null);
-const selectUserPhone = reselect.createSelector(selectUser, user => user ? user.phone_number : null);
-const selectUserCountryCode = reselect.createSelector(selectUser, user => user ? user.country_code : null);
+const selectUserPhone = reselect.createSelector(selectUser, user => user ? user.mobileNo : null);
+const selectUserCheckId = reselect.createSelector(selectState$1, state => state.isNewUser);
+const selectUserEmailLogin = reselect.createSelector(selectState$1, state => state.isLoggedIn);
+const selectUserCheckType = reselect.createSelector(selectState$1, state => state.inputType);
+const selectUserCheckValue = reselect.createSelector(selectState$1, state => state.input); // export const selectUserCountryCode = createSelector(
+//   selectUser,
+//   user => (user ? user.country_code : null)
+// );
+
 const selectEmailToVerify = reselect.createSelector(selectState$1, selectUserEmail, (state, userEmail) => state.emailToVerify || userEmail);
-const selectPhoneToVerify = reselect.createSelector(selectState$1, selectUserPhone, (state, userPhone) => state.phoneToVerify || userPhone);
+const selectPhoneToVerify = reselect.createSelector(selectState$1, state => state.input);
 const selectUserIsRewardApproved = reselect.createSelector(selectUser, user => user && user.is_reward_approved);
 const selectEmailNewIsPending = reselect.createSelector(selectState$1, state => state.emailNewIsPending);
+const selectUserLoggedOut = reselect.createSelector(selectState$1, state => state.isLoggedIn);
 const selectEmailNewErrorMessage = reselect.createSelector(selectState$1, state => state.emailNewErrorMessage);
 const selectPhoneNewErrorMessage = reselect.createSelector(selectState$1, state => state.phoneNewErrorMessage);
 const selectEmailVerifyIsPending = reselect.createSelector(selectState$1, state => state.emailVerifyIsPending);
 const selectEmailVerifyErrorMessage = reselect.createSelector(selectState$1, state => state.emailVerifyErrorMessage);
-const selectPhoneNewIsPending = reselect.createSelector(selectState$1, state => state.phoneNewIsPending);
+const selectPhoneNewIsPending = reselect.createSelector(selectState$1, state => state.phoneNewIsPending && state.otpSent);
 const selectPhoneVerifyIsPending = reselect.createSelector(selectState$1, state => state.phoneVerifyIsPending);
 const selectPhoneVerifyErrorMessage = reselect.createSelector(selectState$1, state => state.phoneVerifyErrorMessage);
 const selectIdentityVerifyIsPending = reselect.createSelector(selectState$1, state => state.identityVerifyIsPending);
@@ -702,6 +729,77 @@ const selectUserInviteStatusFailed = reselect.createSelector(selectUserInvitesRe
 const selectUserInviteNewIsPending = reselect.createSelector(selectState$1, state => state.inviteNewIsPending);
 const selectUserInviteNewErrorMessage = reselect.createSelector(selectState$1, state => state.inviteNewErrorMessage);
 const selectUserInviteReferralLink = reselect.createSelector(selectState$1, state => state.referralLink);
+
+function doFetchFeaturedUris(offloadResolve = false) {
+  return dispatch => {
+    dispatch({
+      type: FETCH_FEATURED_CONTENT_STARTED
+    });
+
+    const success = ({
+      Uris
+    }) => {
+      let urisToResolve = [];
+      Object.keys(Uris).forEach(category => {
+        urisToResolve = [...urisToResolve, ...Uris[category]];
+      });
+      const actions = [{
+        type: FETCH_FEATURED_CONTENT_COMPLETED,
+        data: {
+          uris: Uris,
+          success: true
+        }
+      }];
+
+      if (urisToResolve.length && !offloadResolve) {
+        actions.push(lbryRedux.doResolveUris(urisToResolve));
+      }
+
+      dispatch(lbryRedux.batchActions(...actions));
+    };
+
+    const failure = () => {
+      dispatch({
+        type: FETCH_FEATURED_CONTENT_COMPLETED,
+        data: {
+          uris: {}
+        }
+      });
+    };
+
+    Lbryio.call('file', 'list_homepage').then(success, failure);
+  };
+}
+function doFetchTrendingUris() {
+  return dispatch => {
+    dispatch({
+      type: FETCH_TRENDING_CONTENT_STARTED
+    });
+
+    const success = data => {
+      const urisToResolve = data.map(uri => uri.url);
+      const actions = [lbryRedux.doResolveUris(urisToResolve), {
+        type: FETCH_TRENDING_CONTENT_COMPLETED,
+        data: {
+          uris: data,
+          success: true
+        }
+      }];
+      dispatch(lbryRedux.batchActions(...actions));
+    };
+
+    const failure = () => {
+      dispatch({
+        type: FETCH_TRENDING_CONTENT_COMPLETED,
+        data: {
+          uris: []
+        }
+      });
+    };
+
+    Lbryio.call('file', 'list_trending').then(success, failure);
+  };
+}
 
 function doFetchInviteStatus() {
   return dispatch => {
@@ -744,7 +842,7 @@ function doInstallNew(appVersion, os = null) {
   });
 } // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 
-function doAuthenticate(appVersion, os = null) {
+function doAuthenticate() {
   return dispatch => {
     dispatch({
       type: lbryRedux.ACTIONS.AUTHENTICATION_STARTED
@@ -757,9 +855,6 @@ function doAuthenticate(appVersion, os = null) {
           user
         }
       });
-      dispatch(doRewardList());
-      dispatch(doFetchInviteStatus());
-      doInstallNew(appVersion, os);
     }).catch(error => {
       dispatch({
         type: lbryRedux.ACTIONS.AUTHENTICATION_FAILURE,
@@ -843,9 +938,8 @@ function doUserPhoneNew(phone, countryCode) {
       });
     };
 
-    Lbryio.call('user', 'phone_number_new', {
-      phone_number: phone,
-      country_code: countryCode
+    Lbryio.call('user_mobile', 'new', {
+      mobileNo: phone
     }, 'post').then(success, failure);
   };
 }
@@ -859,16 +953,16 @@ function doUserPhoneVerifyFailure(error) {
 }
 function doUserPhoneVerify(verificationCode) {
   return (dispatch, getState) => {
-    const phoneNumber = selectPhoneToVerify(getState());
-    const countryCode = selectUserCountryCode(getState());
+    const phoneNumber = selectPhoneToVerify(getState()); // const countryCode = selectUserCountryCode(getState());
+
     dispatch({
       type: lbryRedux.ACTIONS.USER_PHONE_VERIFY_STARTED,
       code: verificationCode
     });
-    Lbryio.call('user', 'phone_number_confirm', {
+    Lbryio.call('user_mobile', 'phone_number_confirm', {
       verification_code: verificationCode,
-      phone_number: phoneNumber,
-      country_code: countryCode
+      mobileNo: phoneNumber // country_code: countryCode,
+
     }, 'post').then(user => {
       if (user.is_identity_verified) {
         dispatch({
@@ -877,9 +971,23 @@ function doUserPhoneVerify(verificationCode) {
             user
           }
         });
-        dispatch(doClaimRewardType(rewards.TYPE_NEW_USER));
+        dispatch(doFetchFeaturedUris());
       }
     }).catch(error => dispatch(doUserPhoneVerifyFailure(error)));
+  };
+}
+function doUserLogout() {
+  return dispatch => {
+    Lbryio.call('user', 'logout', {}, 'post').then(data => {
+      if (data.user_id === '') {
+        dispatch({
+          type: lbryRedux.ACTIONS.USER_LOGOUT_SUCCESS,
+          data: {
+            data
+          }
+        });
+      }
+    });
   };
 }
 function doUserEmailToVerify(email) {
@@ -892,7 +1000,7 @@ function doUserEmailToVerify(email) {
     });
   };
 }
-function doUserEmailNew(email) {
+function doUserEmailNew(email, password) {
   return dispatch => {
     dispatch({
       type: lbryRedux.ACTIONS.USER_EMAIL_NEW_STARTED,
@@ -920,6 +1028,7 @@ function doUserEmailNew(email) {
 
     Lbryio.call('user_email', 'new', {
       email,
+      password,
       send_verification_email: true
     }, 'post').catch(error => {
       if (error.response && error.response.status === 409) {
@@ -931,6 +1040,24 @@ function doUserEmailNew(email) {
 
       throw error;
     }).then(success, failure);
+  };
+}
+function doUserEmailLogin(email, password) {
+  return dispatch => {
+    Lbryio.call('user_email', 'login', {
+      email,
+      password
+    }, 'post').then(data => {
+      dispatch({
+        type: lbryRedux.ACTIONS.USER_EMAIL_LOGIN,
+        data: {
+          data
+        }
+      });
+      dispatch(doFetchFeaturedUris());
+    }).catch(error => {
+      throw new Error('User Email Login Error ', error);
+    });
   };
 }
 function doUserResendVerificationEmail(email) {
@@ -1031,7 +1158,6 @@ function doUserIdentityVerify(stripeToken) {
             user
           }
         });
-        dispatch(doClaimRewardType(rewards.TYPE_NEW_USER));
       } else {
         throw new Error('Your identity is still not verified. This should not happen.'); // shouldn't happen
       }
@@ -1070,6 +1196,33 @@ function doUserInviteNew(email) {
           error
         }
       });
+    });
+  };
+}
+function doUserCheckId(input) {
+  return dispatch => {
+    Lbryio.call('user', 'check_id', {
+      input
+    }, 'post').then(user => {
+      if (user.type === 'mobile') {
+        dispatch({
+          type: lbryRedux.ACTIONS.USER_VERIFY_ID,
+          data: {
+            user
+          }
+        });
+        dispatch(doUserPhoneNew(user.value));
+      } else if (user.type === 'email') {
+        dispatch({
+          type: lbryRedux.ACTIONS.USER_VERIFY_ID,
+          data: {
+            user
+          }
+        });
+        dispatch(doUserEmailNew());
+      } else throw new Error('Your email or mobile check gone wrong in Api');
+    }).catch(error => {
+      throw new Error('User receiving Error ', error);
     });
   };
 }
@@ -1637,10 +1790,7 @@ const doChannelSubscribe = subscription => (dispatch, getState) => {
     Lbryio.call('subscription', 'new', {
       channel_name: subscription.channelName,
       claim_id: claimId
-    });
-    dispatch(doClaimRewardType(rewards.TYPE_SUBSCRIPTION, {
-      failSilently: true
-    }));
+    }); // dispatch(doClaimRewardType(rewards.TYPE_SUBSCRIPTION, { failSilently: true }));
   }
 
   dispatch(doCheckSubscription(subscription.uri, true));
@@ -1883,77 +2033,6 @@ function doBlackListedOutpointsSubscribe() {
   };
 }
 
-function doFetchFeaturedUris(offloadResolve = false) {
-  return dispatch => {
-    dispatch({
-      type: FETCH_FEATURED_CONTENT_STARTED
-    });
-
-    const success = ({
-      Uris
-    }) => {
-      let urisToResolve = [];
-      Object.keys(Uris).forEach(category => {
-        urisToResolve = [...urisToResolve, ...Uris[category]];
-      });
-      const actions = [{
-        type: FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: Uris,
-          success: true
-        }
-      }];
-
-      if (urisToResolve.length && !offloadResolve) {
-        actions.push(lbryRedux.doResolveUris(urisToResolve));
-      }
-
-      dispatch(lbryRedux.batchActions(...actions));
-    };
-
-    const failure = () => {
-      dispatch({
-        type: FETCH_FEATURED_CONTENT_COMPLETED,
-        data: {
-          uris: {}
-        }
-      });
-    };
-
-    Lbryio.call('file', 'list_homepage').then(success, failure);
-  };
-}
-function doFetchTrendingUris() {
-  return dispatch => {
-    dispatch({
-      type: FETCH_TRENDING_CONTENT_STARTED
-    });
-
-    const success = data => {
-      const urisToResolve = data.map(uri => uri.url);
-      const actions = [lbryRedux.doResolveUris(urisToResolve), {
-        type: FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: data,
-          success: true
-        }
-      }];
-      dispatch(lbryRedux.batchActions(...actions));
-    };
-
-    const failure = () => {
-      dispatch({
-        type: FETCH_TRENDING_CONTENT_COMPLETED,
-        data: {
-          uris: []
-        }
-      });
-    };
-
-    Lbryio.call('file', 'list_trending').then(success, failure);
-  };
-}
-
 //      
 const doFetchViewCount = claimId => dispatch => {
   dispatch({
@@ -2024,7 +2103,7 @@ function doSetDefaultAccount() {
       } = accountList;
       let defaultId;
 
-      for (let i = 0; i < accounts.length; i++) {
+      for (let i = 0; i < accounts.length; ++i) {
         if (accounts[i].satoshis > 0) {
           defaultId = accounts[i].id;
           break;
@@ -2101,6 +2180,54 @@ function doGetSync(password) {
           hash: walletHash,
           data
         }) => dispatch(doSetSync(null, walletHash, data)));
+      });
+    });
+  };
+}
+
+function doLikeOnClick(claimId, likeStatus) {
+  return dispatch => {
+    Lbryio.call('likes', 'like', {
+      claim_id: claimId,
+      liked: likeStatus
+    }, 'post').then(() => {
+      dispatch({
+        type: LIKE_ON_CLICK,
+        data: {
+          likeStatus
+        }
+      });
+    });
+  };
+}
+function doDislikeOnClick(claimId, dislikeStatus) {
+  return dispatch => {
+    Lbryio.call('likes', 'dislike', {
+      claim_id: claimId,
+      disliked: dislikeStatus
+    }, 'post').then(() => {
+      dispatch({
+        type: DISLIKE_ON_CLICK,
+        data: {
+          dislikeStatus
+        }
+      });
+    });
+  };
+}
+function doLikeCount(claimId) {
+  return dispatch => {
+    Lbryio.call('likes', 'count', {
+      claim_id: claimId
+    }, 'post').then(count => {
+      dispatch({
+        type: LIKE_COUNT,
+        data: {
+          likeCount: count.likes,
+          dislikeCount: count.dislikes,
+          likeStatus: count.likeStatus,
+          dislikeStatus: count.dislikeStatus
+        }
       });
     });
   };
@@ -2259,7 +2386,8 @@ const defaultState$3 = {
   inviteStatusIsPending: false,
   invitesRemaining: undefined,
   invitees: undefined,
-  user: undefined
+  user: undefined,
+  usersDefaultState: []
 };
 
 reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
@@ -2271,7 +2399,8 @@ reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}
 reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => Object.assign({}, state, {
   authenticationIsPending: false,
   userIsPending: false,
-  user: action.data.user
+  user: action.data.user,
+  isLoggedIn: action.data.user.is_identity_verified
 });
 
 reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_FAILURE] = state => Object.assign({}, state, {
@@ -2287,7 +2416,8 @@ reducers$2[lbryRedux.ACTIONS.USER_FETCH_STARTED] = state => Object.assign({}, st
 
 reducers$2[lbryRedux.ACTIONS.USER_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
   userIsPending: false,
-  user: action.data.user
+  user: action.data.user,
+  isLoggedIn: action.data.user.is_identity_verified
 });
 
 reducers$2[lbryRedux.ACTIONS.USER_FETCH_FAILURE] = state => Object.assign({}, state, {
@@ -2316,7 +2446,8 @@ reducers$2[lbryRedux.ACTIONS.USER_PHONE_RESET] = state => Object.assign({}, stat
 
 reducers$2[lbryRedux.ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
   phoneNewIsPending: false,
-  phoneNewErrorMessage: action.data.error
+  phoneNewErrorMessage: action.data.error,
+  isLoggedIn: false
 });
 
 reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_STARTED] = state => Object.assign({}, state, {
@@ -2324,10 +2455,23 @@ reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_STARTED] = state => Object.assign
   phoneVerifyErrorMessage: ''
 });
 
+reducers$2[lbryRedux.ACTIONS.USER_VERIFY_ID] = (state, action) => Object.assign({}, state, {
+  isNewUser: action.data.user.isNew,
+  inputType: action.data.user.type,
+  input: action.data.user.value
+});
+
 reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
   phoneToVerify: '',
   phoneVerifyIsPending: false,
-  user: action.data.user
+  user: action.data.user,
+  isLoggedIn: action.data.user.is_identity_verified
+});
+
+reducers$2[lbryRedux.ACTIONS.USER_LOGOUT_SUCCESS] = state => Object.assign({}, state, {
+  isLoggedIn: false,
+  isNewUser: undefined,
+  inputType: undefined
 });
 
 reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
@@ -2349,6 +2493,15 @@ reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
     user
   });
 };
+
+reducers$2[lbryRedux.ACTIONS.USER_EMAIL_LOGIN] = (state, action) => Object.assign({}, state, {
+  user: action.data,
+  isLoggedIn: action.data.data.is_identity_verified
+});
+
+reducers$2[lbryRedux.ACTIONS.USER_GOOGLE_SUCCESS] = state => Object.assign({}, state, {
+  state
+});
 
 reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_EXISTS] = (state, action) => Object.assign({}, state, {
   emailToVerify: action.data.email,
@@ -2392,7 +2545,8 @@ reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_STARTED] = state => Object.ass
 reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
   identityVerifyIsPending: false,
   identityVerifyErrorMessage: '',
-  user: action.data.user
+  user: action.data.user,
+  isLoggedIn: action.data.user.is_identity_verified
 });
 
 reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
@@ -2620,45 +2774,98 @@ function syncReducer(state = defaultState$8, action) {
   return state;
 }
 
+const defaultState$9 = {
+  likeStatus: false,
+  likeCount: 0,
+  dislikeStatus: false,
+  dislikeCount: 0
+};
+const likesReducer = handleActions({
+  [LIKE_ON_CLICK]: (state, action) => {
+    const {
+      likeStatus
+    } = action.data;
+    return { ...state,
+      likeCount: likeStatus ? state.likeCount + 1 : state.likeCount - 1,
+      dislikeCount: state.dislikeStatus ? state.dislikeCount - 1 : state.dislikeCount,
+      likeStatus,
+      dislikeStatus: false
+    };
+  },
+  [DISLIKE_ON_CLICK]: (state, action) => {
+    const {
+      dislikeStatus
+    } = action.data;
+    return { ...state,
+      likeCount: state.likeStatus ? state.likeCount - 1 : state.likeCount,
+      dislikeCount: dislikeStatus ? state.dislikeCount + 1 : state.dislikeCount - 1,
+      dislikeStatus,
+      likeStatus: false
+    };
+  },
+  [LIKE_COUNT]: (state, action) => {
+    const {
+      likeCount,
+      dislikeCount,
+      likeStatus,
+      dislikeStatus
+    } = action.data;
+    return { ...state,
+      likeCount,
+      dislikeCount,
+      likeStatus,
+      dislikeStatus
+    };
+  }
+}, defaultState$9);
+
 const selectState$3 = state => state.auth || {};
 
 const selectAuthToken = reselect.createSelector(selectState$3, state => state.authToken);
 const selectIsAuthenticating = reselect.createSelector(selectState$3, state => state.authenticating);
 
-const selectState$4 = state => state.costInfo || {};
-const selectAllCostInfoByUri = reselect.createSelector(selectState$4, state => state.byUri || {});
+const selectState$4 = state => state.likes || {};
+const likeSelector = reselect.createSelector(selectState$4, state => state.likeStatus);
+const dislikeSelector = reselect.createSelector(selectState$4, state => state.dislikeStatus);
+const likeCountSelector = reselect.createSelector(selectState$4, state => state.likeCount);
+const dislikeCountSelector = reselect.createSelector(selectState$4, state => state.dislikeCount);
+
+const selectState$5 = state => state.costInfo || {};
+const selectAllCostInfoByUri = reselect.createSelector(selectState$5, state => state.byUri || {});
 const makeSelectCostInfoForUri = uri => reselect.createSelector(selectAllCostInfoByUri, costInfos => costInfos && costInfos[uri]);
-const selectFetchingCostInfo = reselect.createSelector(selectState$4, state => state.fetching || {});
+const selectFetchingCostInfo = reselect.createSelector(selectState$5, state => state.fetching || {});
 const makeSelectFetchingCostInfoForUri = uri => reselect.createSelector(selectFetchingCostInfo, fetchingByUri => fetchingByUri && fetchingByUri[uri]);
 
-const selectState$5 = state => state.blacklist || {};
-const selectBlackListedOutpoints = reselect.createSelector(selectState$5, state => state.blackListedOutpoints);
+const selectState$6 = state => state.blacklist || {};
+const selectBlackListedOutpoints = reselect.createSelector(selectState$6, state => state.blackListedOutpoints);
 
-const selectState$6 = state => state.homepage || {};
+const selectState$7 = state => state.homepage || {};
 
-const selectFeaturedUris = reselect.createSelector(selectState$6, state => state.featuredUris);
-const selectFetchingFeaturedUris = reselect.createSelector(selectState$6, state => state.fetchingFeaturedContent);
-const selectTrendingUris = reselect.createSelector(selectState$6, state => state.trendingUris);
-const selectFetchingTrendingUris = reselect.createSelector(selectState$6, state => state.fetchingTrendingContent);
+const selectFeaturedUris = reselect.createSelector(selectState$7, state => state.featuredUris);
+const selectFetchingFeaturedUris = reselect.createSelector(selectState$7, state => state.fetchingFeaturedContent);
+const selectTrendingUris = reselect.createSelector(selectState$7, state => state.trendingUris);
+const selectFetchingTrendingUris = reselect.createSelector(selectState$7, state => state.fetchingTrendingContent);
 
-const selectState$7 = state => state.stats || {};
+const selectState$8 = state => state.stats || {};
 
-const selectViewCount = reselect.createSelector(selectState$7, state => state.viewCountById);
+const selectViewCount = reselect.createSelector(selectState$8, state => state.viewCountById);
 const makeSelectViewCountForUri = uri => reselect.createSelector(lbryRedux.makeSelectClaimForUri(uri), selectViewCount, (claim, viewCountById) => viewCountById[claim.claim_id] || 0);
 
-const selectState$8 = state => state.sync || {};
+const selectState$9 = state => state.sync || {};
 
-const selectHasSyncedWallet = reselect.createSelector(selectState$8, state => state.hasSyncedWallet);
-const selectSyncHash = reselect.createSelector(selectState$8, state => state.syncHash);
-const selectSetSyncErrorMessage = reselect.createSelector(selectState$8, state => state.setSyncErrorMessage);
-const selectIsRetrievingSync = reselect.createSelector(selectState$8, state => state.retrievingSync);
-const selectIsSettingSync = reselect.createSelector(selectState$8, state => state.settingSync);
+const selectHasSyncedWallet = reselect.createSelector(selectState$9, state => state.hasSyncedWallet);
+const selectSyncHash = reselect.createSelector(selectState$9, state => state.syncHash);
+const selectSetSyncErrorMessage = reselect.createSelector(selectState$9, state => state.setSyncErrorMessage);
+const selectIsRetrievingSync = reselect.createSelector(selectState$9, state => state.retrievingSync);
+const selectIsSettingSync = reselect.createSelector(selectState$9, state => state.settingSync);
 
 exports.LBRYINC_ACTIONS = action_types;
 exports.Lbryio = Lbryio;
 exports.authReducer = authReducer;
 exports.blacklistReducer = blacklistReducer;
 exports.costInfoReducer = costInfoReducer;
+exports.dislikeCountSelector = dislikeCountSelector;
+exports.dislikeSelector = dislikeSelector;
 exports.doAuthenticate = doAuthenticate;
 exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
 exports.doChannelSubscribe = doChannelSubscribe;
@@ -2672,6 +2879,7 @@ exports.doClaimEligiblePurchaseRewards = doClaimEligiblePurchaseRewards;
 exports.doClaimRewardClearError = doClaimRewardClearError;
 exports.doClaimRewardType = doClaimRewardType;
 exports.doCompleteFirstRun = doCompleteFirstRun;
+exports.doDislikeOnClick = doDislikeOnClick;
 exports.doFetchAccessToken = doFetchAccessToken;
 exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 exports.doFetchFeaturedUris = doFetchFeaturedUris;
@@ -2684,6 +2892,8 @@ exports.doFetchViewCount = doFetchViewCount;
 exports.doGenerateAuthToken = doGenerateAuthToken;
 exports.doGetSync = doGetSync;
 exports.doInstallNew = doInstallNew;
+exports.doLikeCount = doLikeCount;
+exports.doLikeOnClick = doLikeOnClick;
 exports.doRemoveUnreadSubscription = doRemoveUnreadSubscription;
 exports.doRemoveUnreadSubscriptions = doRemoveUnreadSubscriptions;
 exports.doRewardList = doRewardList;
@@ -2693,6 +2903,8 @@ exports.doSetViewMode = doSetViewMode;
 exports.doShowSuggestedSubs = doShowSuggestedSubs;
 exports.doUpdateUnreadSubscriptions = doUpdateUnreadSubscriptions;
 exports.doUserCheckEmailVerified = doUserCheckEmailVerified;
+exports.doUserCheckId = doUserCheckId;
+exports.doUserEmailLogin = doUserEmailLogin;
 exports.doUserEmailNew = doUserEmailNew;
 exports.doUserEmailToVerify = doUserEmailToVerify;
 exports.doUserEmailVerify = doUserEmailVerify;
@@ -2700,12 +2912,16 @@ exports.doUserEmailVerifyFailure = doUserEmailVerifyFailure;
 exports.doUserFetch = doUserFetch;
 exports.doUserIdentityVerify = doUserIdentityVerify;
 exports.doUserInviteNew = doUserInviteNew;
+exports.doUserLogout = doUserLogout;
 exports.doUserPhoneNew = doUserPhoneNew;
 exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
 exports.doUserPhoneVerifyFailure = doUserPhoneVerifyFailure;
 exports.doUserResendVerificationEmail = doUserResendVerificationEmail;
 exports.homepageReducer = homepageReducer;
+exports.likeCountSelector = likeCountSelector;
+exports.likeSelector = likeSelector;
+exports.likesReducer = likesReducer;
 exports.makeSelectClaimRewardError = makeSelectClaimRewardError;
 exports.makeSelectCostInfoForUri = makeSelectCostInfoForUri;
 exports.makeSelectFetchingCostInfoForUri = makeSelectFetchingCostInfoForUri;
@@ -2771,8 +2987,11 @@ exports.selectUnreadAmount = selectUnreadAmount;
 exports.selectUnreadByChannel = selectUnreadByChannel;
 exports.selectUnreadSubscriptions = selectUnreadSubscriptions;
 exports.selectUser = selectUser;
-exports.selectUserCountryCode = selectUserCountryCode;
+exports.selectUserCheckId = selectUserCheckId;
+exports.selectUserCheckType = selectUserCheckType;
+exports.selectUserCheckValue = selectUserCheckValue;
 exports.selectUserEmail = selectUserEmail;
+exports.selectUserEmailLogin = selectUserEmailLogin;
 exports.selectUserInviteNewErrorMessage = selectUserInviteNewErrorMessage;
 exports.selectUserInviteNewIsPending = selectUserInviteNewIsPending;
 exports.selectUserInviteReferralLink = selectUserInviteReferralLink;
@@ -2783,6 +3002,7 @@ exports.selectUserInvitesRemaining = selectUserInvitesRemaining;
 exports.selectUserIsPending = selectUserIsPending;
 exports.selectUserIsRewardApproved = selectUserIsRewardApproved;
 exports.selectUserIsVerificationCandidate = selectUserIsVerificationCandidate;
+exports.selectUserLoggedOut = selectUserLoggedOut;
 exports.selectUserPhone = selectUserPhone;
 exports.selectViewMode = selectViewMode;
 exports.setSubscriptionLatest = setSubscriptionLatest;
