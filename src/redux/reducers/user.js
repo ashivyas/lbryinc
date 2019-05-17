@@ -142,11 +142,6 @@ reducers[ACTIONS.USER_EMAIL_LOGIN] = (state, action) =>
     isLoggedIn: action.data.data.is_identity_verified,
   });
 
-reducers[ACTIONS.USER_GOOGLE_SUCCESS] = state =>
-  Object.assign({}, state, {
-    state,
-  });
-
 reducers[ACTIONS.USER_EMAIL_NEW_EXISTS] = (state, action) =>
   Object.assign({}, state, {
     emailToVerify: action.data.email,
