@@ -35,12 +35,19 @@ export const likesReducer = handleActions(
     },
 
     [ACTIONS.LIKE_COUNT]: (state, action) => {
-      const { likeCount, dislikeCount, likeStatus, dislikeStatus } = action.data;
+      const { likeCount, dislikeCount } = action.data;
 
       return {
         ...state,
         likeCount,
         dislikeCount,
+      };
+    },
+    [ACTIONS.LIKE_CHECK]: (state, action) => {
+      const { likeStatus, dislikeStatus } = action.data;
+
+      return {
+        ...state,
         likeStatus,
         dislikeStatus,
       };

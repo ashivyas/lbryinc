@@ -16,7 +16,8 @@ export function doLikeOnClick(claimId, likeStatus) {
 
 export function doDislikeOnClick(claimId, dislikeStatus) {
   return dispatch => {
-    Lbryio.call('likes', 'dislike', { claim_id: claimId, disliked: dislikeStatus }, 'post').then(() => {
+    Lbryio.call('likes', 'dislike', { claim_id: claimId, disliked: dislikeStatus }, 'post').then(
+      () => {
         dispatch({
           type: ACTIONS.DISLIKE_ON_CLICK,
           data: {
@@ -36,6 +37,20 @@ export function doLikeCount(claimId) {
         data: {
           likeCount: count.likes,
           dislikeCount: count.dislikes,
+          likeStatus: count.likeStatus,
+          dislikeStatus: count.dislikeStatus,
+        },
+      });
+    });
+  };
+}
+
+export function doLikeCheck(claimId) {
+  return dispatch => {
+    Lbryio.call('likes', 'check', { claim_id: claimId }, 'post').then(count => {
+      dispatch({
+        type: ACTIONS.LIKE_CHECK,
+        data: {
           likeStatus: count.likeStatus,
           dislikeStatus: count.dislikeStatus,
         },

@@ -83,3 +83,7 @@ export const LIKE_ON_CLICK = 'LIKE_ON_CLICK';
 export const LIKE_COUNT = 'LIKE_COUNT';
 export const LIKE_CHECK = 'LIKE_CHECK';
 export const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';
+
+// Views
+export const REG_VIEW = 'REG_VIEW';
+export const VIEW_COUNTER = 'REG_COUNTER';

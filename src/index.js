@@ -63,7 +63,7 @@ export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage';
 export { doFetchViewCount } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
-export { doLikeOnClick, doDislikeOnClick, doLikeCount } from 'redux/actions/likes';
+export { doLikeOnClick, doDislikeOnClick, doLikeCount, doLikeCheck } from 'redux/actions/likes';
 
 // reducers
 export { authReducer } from 'redux/reducers/auth';
@@ -168,7 +168,7 @@ export {
   selectTrendingUris,
   selectFetchingTrendingUris,
 } from 'redux/selectors/homepage';
-export { makeSelectViewCountForUri } from 'redux/selectors/stats';
+export { makeSelectViewCountForUri, selectViewCount } from 'redux/selectors/stats';
 export {
   selectHasSyncedWallet,
   selectSyncHash,
