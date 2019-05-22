@@ -87,3 +87,8 @@ export const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';
 // Views
 export const REG_VIEW = 'REG_VIEW';
 export const VIEW_COUNTER = 'REG_COUNTER';
+
+// Playlist - Default Watch Later
+export const FETCH_PLAYLIST = 'FETCH_PLAYLIST';
+export const ADD_TO_PLAYLIST = 'ADD_TO_PLAYLIST';
+export const REMOVE_FROM_PLAYLIST = 'REMOVE_FROM_PLAYLIST';

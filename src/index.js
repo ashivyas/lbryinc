@@ -64,6 +64,7 @@ export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage
 export { doFetchViewCount } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
 export { doLikeOnClick, doDislikeOnClick, doLikeCount, doLikeCheck } from 'redux/actions/likes';
+export { doFetchPlaylist, doAddToPlaylist, doRemoveFromPlaylist } from 'redux/actions/playlist';
 
 // reducers
 export { authReducer } from 'redux/reducers/auth';
@@ -76,6 +77,7 @@ export { homepageReducer } from 'redux/reducers/homepage';
 export { statsReducer } from 'redux/reducers/stats';
 export { syncReducer } from 'redux/reducers/sync';
 export { likesReducer } from 'redux/reducers/likes';
+export { playlistReducer } from 'redux/reducers/playlist';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from 'redux/selectors/auth';
@@ -176,3 +178,4 @@ export {
   selectIsRetrievingSync,
   selectIsSettingSync,
 } from 'redux/selectors/sync';
+export { selectPlaylistName, selectPlaylistUris } from 'redux/selectors/playlist';
