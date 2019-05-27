@@ -58,6 +58,7 @@ export {
   doUserIdentityVerify,
   doUserInviteNew,
 } from 'redux/actions/user';
+export { doReportType } from 'redux/actions/report';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage';
@@ -78,6 +79,7 @@ export { statsReducer } from 'redux/reducers/stats';
 export { syncReducer } from 'redux/reducers/sync';
 export { likesReducer } from 'redux/reducers/likes';
 export { playlistReducer } from 'redux/reducers/playlist';
+export { reportReducer } from 'redux/reducers/report';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from 'redux/selectors/auth';
