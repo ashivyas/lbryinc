@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var lbryRedux = require('lbry-redux');
+var ACTIONS = require('lbry-redux');
 var querystring = _interopDefault(require('querystring'));
 var reselect = require('reselect');
 
@@ -83,7 +83,14 @@ const SET_DEFAULT_ACCOUNT = 'SET_DEFAULT_ACCOUNT'; // Likes
 const LIKE_ON_CLICK = 'LIKE_ON_CLICK';
 const LIKE_COUNT = 'LIKE_COUNT';
 const LIKE_CHECK = 'LIKE_CHECK';
-const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';
+const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK'; // Views
+
+const REG_VIEW = 'REG_VIEW';
+const VIEW_COUNTER = 'REG_COUNTER'; // Playlist - Default Watch Later
+
+const FETCH_PLAYLIST = 'FETCH_PLAYLIST';
+const ADD_TO_PLAYLIST = 'ADD_TO_PLAYLIST';
+const REMOVE_FROM_PLAYLIST = 'REMOVE_FROM_PLAYLIST';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -153,7 +160,12 @@ var action_types = /*#__PURE__*/Object.freeze({
   LIKE_ON_CLICK: LIKE_ON_CLICK,
   LIKE_COUNT: LIKE_COUNT,
   LIKE_CHECK: LIKE_CHECK,
-  DISLIKE_ON_CLICK: DISLIKE_ON_CLICK
+  DISLIKE_ON_CLICK: DISLIKE_ON_CLICK,
+  REG_VIEW: REG_VIEW,
+  VIEW_COUNTER: VIEW_COUNTER,
+  FETCH_PLAYLIST: FETCH_PLAYLIST,
+  ADD_TO_PLAYLIST: ADD_TO_PLAYLIST,
+  REMOVE_FROM_PLAYLIST: REMOVE_FROM_PLAYLIST
 });
 
 const Lbryio = {
@@ -293,7 +305,7 @@ Lbryio.authenticate = () => {
           return user;
         }
 
-        return lbryRedux.Lbry.status().then(status => {
+        return ACTIONS.Lbry.status().then(status => {
           if (Lbryio.overrides.setAuthToken) {
             return Lbryio.overrides.setAuthToken(status);
           } // simply call the logic to create a new user, and obtain the auth token
@@ -396,7 +408,7 @@ rewards.claimReward = (type, rewardParams) => {
     Lbryio.call('reward', 'new', params, 'post').then(reward => {
       const message = reward.reward_notification || `You have claimed a ${reward.reward_amount} LBC reward.`; // Display global notice
 
-      const action = lbryRedux.doToast({
+      const action = ACTIONS.doToast({
         message,
         linkText: __('Show All'),
         linkTarget: '/rewards'
@@ -412,7 +424,7 @@ rewards.claimReward = (type, rewardParams) => {
   }
 
   return new Promise((resolve, reject) => {
-    lbryRedux.Lbry.address_unused().then(address => {
+    ACTIONS.Lbry.address_unused().then(address => {
       const params = {
         reward_type: type,
         wallet_address: address,
@@ -421,7 +433,7 @@ rewards.claimReward = (type, rewardParams) => {
 
       switch (type) {
         case rewards.TYPE_FIRST_CHANNEL:
-          lbryRedux.Lbry.claim_list().then(claims => {
+          ACTIONS.Lbry.claim_list().then(claims => {
             const claim = claims.find(foundClaim => foundClaim.name.length && foundClaim.name[0] === '@' && foundClaim.txid.length && foundClaim.type === 'claim');
 
             if (claim) {
@@ -434,7 +446,7 @@ rewards.claimReward = (type, rewardParams) => {
           break;
 
         case rewards.TYPE_FIRST_PUBLISH:
-          lbryRedux.Lbry.claim_list().then(claims => {
+          ACTIONS.Lbry.claim_list().then(claims => {
             const claim = claims.find(foundClaim => foundClaim.name.length && foundClaim.name[0] !== '@' && foundClaim.txid.length && foundClaim.type === 'claim');
 
             if (claim) {
@@ -752,10 +764,10 @@ function doFetchFeaturedUris(offloadResolve = false) {
       }];
 
       if (urisToResolve.length && !offloadResolve) {
-        actions.push(lbryRedux.doResolveUris(urisToResolve));
+        actions.push(ACTIONS.doResolveUris(urisToResolve));
       }
 
-      dispatch(lbryRedux.batchActions(...actions));
+      dispatch(ACTIONS.batchActions(...actions));
     };
 
     const failure = () => {
@@ -778,14 +790,14 @@ function doFetchTrendingUris() {
 
     const success = data => {
       const urisToResolve = data.map(uri => uri.url);
-      const actions = [lbryRedux.doResolveUris(urisToResolve), {
+      const actions = [ACTIONS.doResolveUris(urisToResolve), {
         type: FETCH_TRENDING_CONTENT_COMPLETED,
         data: {
           uris: data,
           success: true
         }
       }];
-      dispatch(lbryRedux.batchActions(...actions));
+      dispatch(ACTIONS.batchActions(...actions));
     };
 
     const failure = () => {
@@ -804,12 +816,12 @@ function doFetchTrendingUris() {
 function doFetchInviteStatus() {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_STARTED
+      type: ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_STARTED
     });
     Promise.all([Lbryio.call('user', 'invite_status'), Lbryio.call('user_referral_code', 'list')]).then(([status, code]) => {
       dispatch(doRewardList());
       dispatch({
-        type: lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS,
         data: {
           invitesRemaining: status.invites_remaining ? status.invites_remaining : 0,
           invitees: status.invitees,
@@ -818,7 +830,7 @@ function doFetchInviteStatus() {
       });
     }).catch(error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE,
+        type: ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE,
         data: {
           error
         }
@@ -830,10 +842,10 @@ function doInstallNew(appVersion, os = null) {
   const payload = {
     app_version: appVersion
   };
-  lbryRedux.Lbry.status().then(status => {
+  ACTIONS.Lbry.status().then(status => {
     payload.app_id = status.installation_id;
     payload.node_id = status.lbry_id;
-    lbryRedux.Lbry.version().then(version => {
+    ACTIONS.Lbry.version().then(version => {
       payload.daemon_version = version.lbrynet_version;
       payload.operating_system = os || version.os_system;
       payload.platform = version.platform;
@@ -845,19 +857,19 @@ function doInstallNew(appVersion, os = null) {
 function doAuthenticate() {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.AUTHENTICATION_STARTED
+      type: ACTIONS.ACTIONS.AUTHENTICATION_STARTED
     });
     Lbryio.authenticate().then(user => {
       // analytics.setUser(user);
       dispatch({
-        type: lbryRedux.ACTIONS.AUTHENTICATION_SUCCESS,
+        type: ACTIONS.ACTIONS.AUTHENTICATION_SUCCESS,
         data: {
           user
         }
       });
     }).catch(error => {
       dispatch({
-        type: lbryRedux.ACTIONS.AUTHENTICATION_FAILURE,
+        type: ACTIONS.ACTIONS.AUTHENTICATION_FAILURE,
         data: {
           error
         }
@@ -868,20 +880,20 @@ function doAuthenticate() {
 function doUserFetch() {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_FETCH_STARTED
+      type: ACTIONS.ACTIONS.USER_FETCH_STARTED
     });
     Lbryio.getCurrentUser().then(user => {
       // analytics.setUser(user);
       dispatch(doRewardList());
       dispatch({
-        type: lbryRedux.ACTIONS.USER_FETCH_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_FETCH_SUCCESS,
         data: {
           user
         }
       });
     }).catch(error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_FETCH_FAILURE,
+        type: ACTIONS.ACTIONS.USER_FETCH_FAILURE,
         data: {
           error
         }
@@ -896,7 +908,7 @@ function doUserCheckEmailVerified() {
       if (user.has_verified_email) {
         dispatch(doRewardList());
         dispatch({
-          type: lbryRedux.ACTIONS.USER_FETCH_SUCCESS,
+          type: ACTIONS.ACTIONS.USER_FETCH_SUCCESS,
           data: {
             user
           }
@@ -907,13 +919,13 @@ function doUserCheckEmailVerified() {
 }
 function doUserPhoneReset() {
   return {
-    type: lbryRedux.ACTIONS.USER_PHONE_RESET
+    type: ACTIONS.ACTIONS.USER_PHONE_RESET
   };
 }
 function doUserPhoneNew(phone, countryCode) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_PHONE_NEW_STARTED,
+      type: ACTIONS.ACTIONS.USER_PHONE_NEW_STARTED,
       data: {
         phone,
         country_code: countryCode
@@ -922,7 +934,7 @@ function doUserPhoneNew(phone, countryCode) {
 
     const success = () => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_PHONE_NEW_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_PHONE_NEW_SUCCESS,
         data: {
           phone
         }
@@ -931,7 +943,7 @@ function doUserPhoneNew(phone, countryCode) {
 
     const failure = error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_PHONE_NEW_FAILURE,
+        type: ACTIONS.ACTIONS.USER_PHONE_NEW_FAILURE,
         data: {
           error
         }
@@ -945,7 +957,7 @@ function doUserPhoneNew(phone, countryCode) {
 }
 function doUserPhoneVerifyFailure(error) {
   return {
-    type: lbryRedux.ACTIONS.USER_PHONE_VERIFY_FAILURE,
+    type: ACTIONS.ACTIONS.USER_PHONE_VERIFY_FAILURE,
     data: {
       error
     }
@@ -956,7 +968,7 @@ function doUserPhoneVerify(verificationCode) {
     const phoneNumber = selectPhoneToVerify(getState()); // const countryCode = selectUserCountryCode(getState());
 
     dispatch({
-      type: lbryRedux.ACTIONS.USER_PHONE_VERIFY_STARTED,
+      type: ACTIONS.ACTIONS.USER_PHONE_VERIFY_STARTED,
       code: verificationCode
     });
     Lbryio.call('user_mobile', 'phone_number_confirm', {
@@ -966,7 +978,7 @@ function doUserPhoneVerify(verificationCode) {
     }, 'post').then(user => {
       if (user.is_identity_verified) {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_PHONE_VERIFY_SUCCESS,
+          type: ACTIONS.ACTIONS.USER_PHONE_VERIFY_SUCCESS,
           data: {
             user
           }
@@ -981,7 +993,7 @@ function doUserLogout() {
     Lbryio.call('user', 'logout', {}, 'post').then(data => {
       if (data.user_id === '') {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_LOGOUT_SUCCESS,
+          type: ACTIONS.ACTIONS.USER_LOGOUT_SUCCESS,
           data: {
             data
           }
@@ -993,7 +1005,7 @@ function doUserLogout() {
 function doUserEmailToVerify(email) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_EMAIL_VERIFY_SET,
+      type: ACTIONS.ACTIONS.USER_EMAIL_VERIFY_SET,
       data: {
         email
       }
@@ -1003,13 +1015,13 @@ function doUserEmailToVerify(email) {
 function doUserEmailNew(email, password) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_EMAIL_NEW_STARTED,
+      type: ACTIONS.ACTIONS.USER_EMAIL_NEW_STARTED,
       email
     });
 
     const success = () => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_EMAIL_NEW_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_EMAIL_NEW_SUCCESS,
         data: {
           email
         }
@@ -1019,7 +1031,7 @@ function doUserEmailNew(email, password) {
 
     const failure = error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_EMAIL_NEW_FAILURE,
+        type: ACTIONS.ACTIONS.USER_EMAIL_NEW_FAILURE,
         data: {
           error
         }
@@ -1049,7 +1061,7 @@ function doUserEmailLogin(email, password) {
       password
     }, 'post').then(data => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_EMAIL_LOGIN,
+        type: ACTIONS.ACTIONS.USER_EMAIL_LOGIN,
         data: {
           data
         }
@@ -1063,13 +1075,13 @@ function doUserEmailLogin(email, password) {
 function doUserResendVerificationEmail(email) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_EMAIL_VERIFY_RETRY,
+      type: ACTIONS.ACTIONS.USER_EMAIL_VERIFY_RETRY,
       email
     });
 
     const success = () => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_EMAIL_NEW_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_EMAIL_NEW_SUCCESS,
         data: {
           email
         }
@@ -1079,7 +1091,7 @@ function doUserResendVerificationEmail(email) {
 
     const failure = error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_EMAIL_NEW_FAILURE,
+        type: ACTIONS.ACTIONS.USER_EMAIL_NEW_FAILURE,
         data: {
           error
         }
@@ -1097,7 +1109,7 @@ function doUserResendVerificationEmail(email) {
 }
 function doUserEmailVerifyFailure(error) {
   return {
-    type: lbryRedux.ACTIONS.USER_EMAIL_VERIFY_FAILURE,
+    type: ACTIONS.ACTIONS.USER_EMAIL_VERIFY_FAILURE,
     data: {
       error
     }
@@ -1107,7 +1119,7 @@ function doUserEmailVerify(verificationToken, recaptcha) {
   return (dispatch, getState) => {
     const email = selectEmailToVerify(getState());
     dispatch({
-      type: lbryRedux.ACTIONS.USER_EMAIL_VERIFY_STARTED,
+      type: ACTIONS.ACTIONS.USER_EMAIL_VERIFY_STARTED,
       code: verificationToken,
       recaptcha
     });
@@ -1118,7 +1130,7 @@ function doUserEmailVerify(verificationToken, recaptcha) {
     }, 'post').then(userEmail => {
       if (userEmail.is_verified) {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_EMAIL_VERIFY_SUCCESS,
+          type: ACTIONS.ACTIONS.USER_EMAIL_VERIFY_SUCCESS,
           data: {
             email
           }
@@ -1133,7 +1145,7 @@ function doUserEmailVerify(verificationToken, recaptcha) {
 function doFetchAccessToken() {
   return dispatch => {
     const success = token => dispatch({
-      type: lbryRedux.ACTIONS.FETCH_ACCESS_TOKEN_SUCCESS,
+      type: ACTIONS.ACTIONS.FETCH_ACCESS_TOKEN_SUCCESS,
       data: {
         token
       }
@@ -1145,7 +1157,7 @@ function doFetchAccessToken() {
 function doUserIdentityVerify(stripeToken) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_STARTED,
+      type: ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_STARTED,
       token: stripeToken
     });
     Lbryio.call('user', 'verify_identity', {
@@ -1153,7 +1165,7 @@ function doUserIdentityVerify(stripeToken) {
     }, 'post').then(user => {
       if (user.is_identity_verified) {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_SUCCESS,
+          type: ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_SUCCESS,
           data: {
             user
           }
@@ -1163,7 +1175,7 @@ function doUserIdentityVerify(stripeToken) {
       }
     }).catch(error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_FAILURE,
+        type: ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_FAILURE,
         data: {
           error: error.toString()
         }
@@ -1174,24 +1186,24 @@ function doUserIdentityVerify(stripeToken) {
 function doUserInviteNew(email) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.USER_INVITE_NEW_STARTED
+      type: ACTIONS.ACTIONS.USER_INVITE_NEW_STARTED
     });
     Lbryio.call('user', 'invite', {
       email
     }, 'post').then(() => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_INVITE_NEW_SUCCESS,
+        type: ACTIONS.ACTIONS.USER_INVITE_NEW_SUCCESS,
         data: {
           email
         }
       });
-      dispatch(lbryRedux.doToast({
+      dispatch(ACTIONS.doToast({
         message: __('Invite sent to %s', email)
       }));
       dispatch(doFetchInviteStatus());
     }).catch(error => {
       dispatch({
-        type: lbryRedux.ACTIONS.USER_INVITE_NEW_FAILURE,
+        type: ACTIONS.ACTIONS.USER_INVITE_NEW_FAILURE,
         data: {
           error
         }
@@ -1206,7 +1218,7 @@ function doUserCheckId(input) {
     }, 'post').then(user => {
       if (user.type === 'mobile') {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_VERIFY_ID,
+          type: ACTIONS.ACTIONS.USER_VERIFY_ID,
           data: {
             user
           }
@@ -1214,7 +1226,7 @@ function doUserCheckId(input) {
         dispatch(doUserPhoneNew(user.value));
       } else if (user.type === 'email') {
         dispatch({
-          type: lbryRedux.ACTIONS.USER_VERIFY_ID,
+          type: ACTIONS.ACTIONS.USER_VERIFY_ID,
           data: {
             user
           }
@@ -1230,20 +1242,20 @@ function doUserCheckId(input) {
 function doRewardList() {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.FETCH_REWARDS_STARTED
+      type: ACTIONS.ACTIONS.FETCH_REWARDS_STARTED
     });
     Lbryio.call('reward', 'list', {
       multiple_rewards_per_type: true
     }).then(userRewards => {
       dispatch({
-        type: lbryRedux.ACTIONS.FETCH_REWARDS_COMPLETED,
+        type: ACTIONS.ACTIONS.FETCH_REWARDS_COMPLETED,
         data: {
           userRewards
         }
       });
     }).catch(() => {
       dispatch({
-        type: lbryRedux.ACTIONS.FETCH_REWARDS_COMPLETED,
+        type: ACTIONS.ACTIONS.FETCH_REWARDS_COMPLETED,
         data: {
           userRewards: []
         }
@@ -1279,7 +1291,7 @@ function doClaimRewardType(rewardType, options = {}) {
     const params = options.params || {};
     params.claim_code = reward.claim_code;
     dispatch({
-      type: lbryRedux.ACTIONS.CLAIM_REWARD_STARTED,
+      type: ACTIONS.ACTIONS.CLAIM_REWARD_STARTED,
       data: {
         reward
       }
@@ -1287,7 +1299,7 @@ function doClaimRewardType(rewardType, options = {}) {
 
     const success = successReward => {
       dispatch({
-        type: lbryRedux.ACTIONS.CLAIM_REWARD_SUCCESS,
+        type: ACTIONS.ACTIONS.CLAIM_REWARD_SUCCESS,
         data: {
           reward: successReward
         }
@@ -1304,7 +1316,7 @@ function doClaimRewardType(rewardType, options = {}) {
 
     const failure = error => {
       dispatch({
-        type: lbryRedux.ACTIONS.CLAIM_REWARD_FAILURE,
+        type: ACTIONS.ACTIONS.CLAIM_REWARD_FAILURE,
         data: {
           reward,
           error: !options || !options.failSilently ? error : undefined
@@ -1312,7 +1324,7 @@ function doClaimRewardType(rewardType, options = {}) {
       });
 
       if (options.notifyError) {
-        dispatch(lbryRedux.doToast({
+        dispatch(ACTIONS.doToast({
           message: error.message,
           isError: true
         }));
@@ -1346,7 +1358,7 @@ function doClaimEligiblePurchaseRewards() {
 function doClaimRewardClearError(reward) {
   return dispatch => {
     dispatch({
-      type: lbryRedux.ACTIONS.CLAIM_REWARD_CLEAR_ERROR,
+      type: ACTIONS.ACTIONS.CLAIM_REWARD_CLEAR_ERROR,
       data: {
         reward
       }
@@ -1357,7 +1369,7 @@ function doFetchRewardedContent() {
   return dispatch => {
     const success = nameToClaimId => {
       dispatch({
-        type: lbryRedux.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        type: ACTIONS.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
         data: {
           claimIds: Object.values(nameToClaimId),
           success: true
@@ -1367,7 +1379,7 @@ function doFetchRewardedContent() {
 
     const failure = () => {
       dispatch({
-        type: lbryRedux.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
+        type: ACTIONS.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED,
         data: {
           claimIds: [],
           success: false
@@ -1452,7 +1464,7 @@ const selectSuggestedChannels = reselect.createSelector(selectSubscriptions, sel
 const selectFirstRunCompleted = reselect.createSelector(selectState$2, state => state.firstRunCompleted);
 const selectShowSuggestedSubs = reselect.createSelector(selectState$2, state => state.showSuggestedSubs); // Fetching any claims that are a part of a users subscriptions
 
-const selectSubscriptionsBeingFetched = reselect.createSelector(selectSubscriptions, lbryRedux.selectAllFetchingChannelClaims, (subscriptions, fetchingChannelClaims) => {
+const selectSubscriptionsBeingFetched = reselect.createSelector(selectSubscriptions, ACTIONS.selectAllFetchingChannelClaims, (subscriptions, fetchingChannelClaims) => {
   const fetchingSubscriptionMap = {};
   subscriptions.forEach(sub => {
     const isFetching = fetchingChannelClaims && fetchingChannelClaims[sub.uri];
@@ -1480,7 +1492,7 @@ const selectUnreadAmount = reselect.createSelector(selectUnreadByChannel, unread
 }); // Returns the uris with channels as an array with the channel with the newest content first
 // If you just want the `unread` state, use selectUnread
 
-const selectUnreadSubscriptions = reselect.createSelector(selectUnreadAmount, selectUnreadByChannel, lbryRedux.selectClaimsByUri, (unreadAmount, unreadByChannel, claimsByUri) => {
+const selectUnreadSubscriptions = reselect.createSelector(selectUnreadAmount, selectUnreadByChannel, ACTIONS.selectClaimsByUri, (unreadAmount, unreadByChannel, claimsByUri) => {
   // determine which channel has the newest content
   const unreadList = [];
 
@@ -1527,7 +1539,7 @@ const selectUnreadSubscriptions = reselect.createSelector(selectUnreadAmount, se
 
 const makeSelectUnreadByChannel = uri => reselect.createSelector(selectUnreadByChannel, unread => unread[uri]); // Returns the first page of claims for every channel a user is subscribed to
 
-const selectSubscriptionClaims = reselect.createSelector(lbryRedux.selectAllClaimsByChannel, lbryRedux.selectClaimsById, selectSubscriptions, selectUnreadByChannel, (channelIds, allClaims, savedSubscriptions, unreadByChannel) => {
+const selectSubscriptionClaims = reselect.createSelector(ACTIONS.selectAllClaimsByChannel, ACTIONS.selectClaimsById, selectSubscriptions, selectUnreadByChannel, (channelIds, allClaims, savedSubscriptions, unreadByChannel) => {
   // no claims loaded yet
   if (!Object.keys(channelIds).length) {
     return [];
@@ -1560,7 +1572,7 @@ const selectSubscriptionClaims = reselect.createSelector(lbryRedux.selectAllClai
 }); // Returns true if a user is subscribed to the channel associated with the uri passed in
 // Accepts content or channel uris
 
-const makeSelectIsSubscribed = uri => reselect.createSelector(selectSubscriptions, lbryRedux.makeSelectChannelForClaimUri(uri, true), (subscriptions, channelUri) => {
+const makeSelectIsSubscribed = uri => reselect.createSelector(selectSubscriptions, ACTIONS.makeSelectChannelForClaimUri(uri, true), (subscriptions, channelUri) => {
   if (channelUri) {
     return subscriptions.some(sub => sub.uri === channelUri);
   } // If we couldn't get a channel uri from the claim uri, the uri passed in might be a channel already
@@ -1568,7 +1580,7 @@ const makeSelectIsSubscribed = uri => reselect.createSelector(selectSubscription
 
   const {
     isChannel
-  } = lbryRedux.parseURI(uri);
+  } = ACTIONS.parseURI(uri);
 
   if (isChannel) {
     const uriWithPrefix = uri.startsWith('lbry://') ? uri : `lbry://${uri}`;
@@ -1577,7 +1589,7 @@ const makeSelectIsSubscribed = uri => reselect.createSelector(selectSubscription
 
   return false;
 });
-const makeSelectIsNew = uri => reselect.createSelector(makeSelectIsSubscribed(uri), lbryRedux.makeSelectChannelForClaimUri(uri), selectUnreadByChannel, (isSubscribed, channel, unreadByChannel) => {
+const makeSelectIsNew = uri => reselect.createSelector(makeSelectIsSubscribed(uri), ACTIONS.makeSelectChannelForClaimUri(uri), selectUnreadByChannel, (isSubscribed, channel, unreadByChannel) => {
   if (!isSubscribed) {
     return false;
   }
@@ -1703,9 +1715,9 @@ const doCheckSubscription = (subscriptionUri, shouldNotify) => (dispatch, getSta
 
   const {
     claimId
-  } = lbryRedux.parseURI(subscriptionUri); // We may be duplicating calls here. Can this logic be baked into doFetchClaimsByChannel?
+  } = ACTIONS.parseURI(subscriptionUri); // We may be duplicating calls here. Can this logic be baked into doFetchClaimsByChannel?
 
-  lbryRedux.Lbry.claim_search({
+  ACTIONS.Lbry.claim_search({
     channel_id: claimId,
     page: 1,
     page_size: PAGE_SIZE
@@ -1728,7 +1740,7 @@ const doCheckSubscription = (subscriptionUri, shouldNotify) => (dispatch, getSta
       let downloadCount = 0;
       const newUnread = [];
       claimsInChannel.slice(0, latestIndexToNotify).forEach(claim => {
-        const uri = lbryRedux.buildURI({
+        const uri = ACTIONS.buildURI({
           contentName: claim.name,
           claimId: claim.claim_id
         }, true);
@@ -1744,11 +1756,11 @@ const doCheckSubscription = (subscriptionUri, shouldNotify) => (dispatch, getSta
 
     dispatch(setSubscriptionLatest({
       channelName: claimsInChannel[0].channel_name,
-      uri: lbryRedux.buildURI({
+      uri: ACTIONS.buildURI({
         channelName: claimsInChannel[0].channel_name,
         claimId: claimsInChannel[0].claim_id
       }, false)
-    }, lbryRedux.buildURI({
+    }, ACTIONS.buildURI({
       contentName: claimsInChannel[0].name,
       claimId: claimsInChannel[0].claim_id
     }, false))); // calling FETCH_CHANNEL_CLAIMS_COMPLETED after not calling STARTED
@@ -1785,7 +1797,7 @@ const doChannelSubscribe = subscription => (dispatch, getState) => {
   if (isSharingData) {
     const {
       claimId
-    } = lbryRedux.parseURI(subscription.uri); // They are sharing data, we can store their subscriptions in our internal database
+    } = ACTIONS.parseURI(subscription.uri); // They are sharing data, we can store their subscriptions in our internal database
 
     Lbryio.call('subscription', 'new', {
       channel_name: subscription.channelName,
@@ -1810,7 +1822,7 @@ const doChannelUnsubscribe = subscription => (dispatch, getState) => {
   if (isSharingData) {
     const {
       claimId
-    } = lbryRedux.parseURI(subscription.uri);
+    } = ACTIONS.parseURI(subscription.uri);
     Lbryio.call('subscription', 'delete', {
       claim_id: claimId
     });
@@ -1862,7 +1874,7 @@ const doFetchMySubscriptions = () => (dispatch, getState) => {
       reduxSubscriptions.forEach(sub => {
         const {
           claimId
-        } = lbryRedux.parseURI(sub.uri);
+        } = ACTIONS.parseURI(sub.uri);
         reduxSubMap[claimId] = 1;
 
         if (!dbSubMap[claimId]) {
@@ -1892,7 +1904,7 @@ const doFetchMySubscriptions = () => (dispatch, getState) => {
       type: FETCH_SUBSCRIPTIONS_SUCCESS,
       data: subscriptions
     });
-    dispatch(lbryRedux.doResolveUris(subscriptions.map(({
+    dispatch(ACTIONS.doResolveUris(subscriptions.map(({
       uri
     }) => uri)));
     dispatch(doCheckSubscriptions());
@@ -1943,10 +1955,29 @@ const doChannelSubscriptionDisableNotifications = channelName => dispatch => dis
   data: channelName
 });
 
+function doReportType(reportType, claimId) {
+  return dispatch => {
+    Lbryio.call('api', 'report', {
+      claim_id: claimId,
+      report_type: reportType
+    }, 'post').then(() => {
+      dispatch({
+        type: ACTIONS.ACTIONS.USER_REPORT_TYPE,
+        data: {
+          reportType,
+          claimId
+        }
+      });
+    }).catch(error => {
+      throw new Error(error);
+    });
+  };
+}
+
 function doFetchCostInfoForUri(uri) {
   return (dispatch, getState) => {
     const state = getState();
-    const claim = lbryRedux.selectClaimsByUri(state)[uri];
+    const claim = ACTIONS.selectClaimsByUri(state)[uri];
     if (!claim) return;
 
     function resolve(costInfo) {
@@ -2034,28 +2065,20 @@ function doBlackListedOutpointsSubscribe() {
 }
 
 //      
-const doFetchViewCount = claimId => dispatch => {
-  dispatch({
-    type: FETCH_VIEW_COUNT_STARTED
-  });
-  return Lbryio.call('file', 'view_count', {
-    claim_id: claimId
-  }).then(result => {
-    const viewCount = result[0];
-    dispatch({
-      type: FETCH_VIEW_COUNT_COMPLETED,
-      data: {
-        claimId,
-        viewCount
-      }
+function doFetchViewCount(claimId) {
+  return dispatch => {
+    Lbryio.call('file', 'view_count', {
+      claim_id: claimId
+    }).then(res => {
+      dispatch({
+        type: VIEW_COUNTER,
+        data: {
+          viewCount: res.count
+        }
+      });
     });
-  }).catch(error => {
-    dispatch({
-      type: FETCH_VIEW_COUNT_FAILED,
-      data: error
-    });
-  });
-};
+  };
+}
 
 function doSetSync(oldHash, newHash, data) {
   return dispatch => {
@@ -2097,7 +2120,7 @@ function doSetDefaultAccount() {
     dispatch({
       type: SET_DEFAULT_ACCOUNT
     });
-    lbryRedux.Lbry.account_list().then(accountList => {
+    ACTIONS.Lbry.account_list().then(accountList => {
       const {
         lbc_mainnet: accounts
       } = accountList;
@@ -2118,7 +2141,7 @@ function doSetDefaultAccount() {
 
 
       if (defaultId) {
-        lbryRedux.Lbry.account_set({
+        ACTIONS.Lbry.account_set({
           account_id: defaultId,
           default: true
         });
@@ -2131,7 +2154,7 @@ function doGetSync(password) {
     dispatch({
       type: GET_SYNC_STARTED
     });
-    lbryRedux.Lbry.sync_hash().then(hash => {
+    ACTIONS.Lbry.sync_hash().then(hash => {
       Lbryio.call('sync', 'get', {
         hash
       }, 'post').then(response => {
@@ -2142,7 +2165,7 @@ function doGetSync(password) {
         if (response.changed) {
           const syncHash = response.hash;
           data.syncHash = syncHash;
-          lbryRedux.Lbry.sync_apply({
+          ACTIONS.Lbry.sync_apply({
             password,
             data: response.data
           }).then(({
@@ -2174,7 +2197,7 @@ function doGetSync(password) {
         }); // call sync_apply to get data to sync
         // first time sync. use any string for old hash
 
-        lbryRedux.Lbry.sync_apply({
+        ACTIONS.Lbry.sync_apply({
           password
         }).then(({
           hash: walletHash,
@@ -2232,6 +2255,69 @@ function doLikeCount(claimId) {
     });
   };
 }
+function doLikeCheck(claimId) {
+  return dispatch => {
+    Lbryio.call('likes', 'check', {
+      claim_id: claimId
+    }, 'post').then(count => {
+      dispatch({
+        type: LIKE_CHECK,
+        data: {
+          likeStatus: count.likeStatus,
+          dislikeStatus: count.dislikeStatus
+        }
+      });
+    });
+  };
+}
+
+//      
+function doFetchPlaylist(playlistName) {
+  return dispatch => {
+    Lbryio.call('playlist', 'list', {
+      name: playlistName
+    }).then(res => {
+      dispatch({
+        type: FETCH_PLAYLIST,
+        data: {
+          playlistUris: res,
+          playlistName
+        }
+      });
+    });
+  };
+}
+function doAddToPlaylist(claimId, claimName, playlistName) {
+  return dispatch => {
+    Lbryio.call('playlist', 'add', {
+      claim_id: claimId,
+      claim_name: claimName,
+      name: playlistName
+    }, 'post').then(() => {
+      dispatch({
+        type: ADD_TO_PLAYLIST,
+        data: {
+          playlistName
+        }
+      });
+    });
+  };
+}
+function doRemoveFromPlaylist(claimId, playlistName) {
+  return dispatch => {
+    Lbryio.call('playlist', 'remove', {
+      claim_id: claimId,
+      name: playlistName
+    }, 'post').then(() => {
+      dispatch({
+        type: REMOVE_FROM_PLAYLIST,
+        data: {
+          playlistName
+        }
+      });
+    });
+  };
+}
 
 const reducers = {};
 const defaultState$1 = {
@@ -2269,11 +2355,11 @@ const defaultState$2 = {
   rewardedContentClaimIds: []
 };
 
-reducers$1[lbryRedux.ACTIONS.FETCH_REWARDS_STARTED] = state => Object.assign({}, state, {
+reducers$1[ACTIONS.ACTIONS.FETCH_REWARDS_STARTED] = state => Object.assign({}, state, {
   fetching: true
 });
 
-reducers$1[lbryRedux.ACTIONS.FETCH_REWARDS_COMPLETED] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.FETCH_REWARDS_COMPLETED] = (state, action) => {
   const {
     userRewards
   } = action.data;
@@ -2316,14 +2402,14 @@ function setClaimRewardState(state, reward, isClaiming, errorMessage = '') {
   });
 }
 
-reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_STARTED] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.CLAIM_REWARD_STARTED] = (state, action) => {
   const {
     reward
   } = action.data;
   return setClaimRewardState(state, reward, true, '');
 };
 
-reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_SUCCESS] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.CLAIM_REWARD_SUCCESS] = (state, action) => {
   const {
     reward
   } = action.data;
@@ -2344,7 +2430,7 @@ reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_SUCCESS] = (state, action) => {
   return setClaimRewardState(newState, reward, false, '');
 };
 
-reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_FAILURE] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.CLAIM_REWARD_FAILURE] = (state, action) => {
   const {
     reward,
     error
@@ -2352,14 +2438,14 @@ reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_FAILURE] = (state, action) => {
   return setClaimRewardState(state, reward, false, error ? error.message : '');
 };
 
-reducers$1[lbryRedux.ACTIONS.CLAIM_REWARD_CLEAR_ERROR] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.CLAIM_REWARD_CLEAR_ERROR] = (state, action) => {
   const {
     reward
   } = action.data;
   return setClaimRewardState(state, reward, state.claimPendingByType[reward.reward_type], '');
 };
 
-reducers$1[lbryRedux.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = (state, action) => {
+reducers$1[ACTIONS.ACTIONS.FETCH_REWARD_CONTENT_COMPLETED] = (state, action) => {
   const {
     claimIds
   } = action.data;
@@ -2390,42 +2476,42 @@ const defaultState$3 = {
   usersDefaultState: []
 };
 
-reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
   authenticationIsPending: true,
   userIsPending: true,
   user: defaultState$3.user
 });
 
-reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => Object.assign({}, state, {
   authenticationIsPending: false,
   userIsPending: false,
   user: action.data.user,
   isLoggedIn: action.data.user.is_identity_verified
 });
 
-reducers$2[lbryRedux.ACTIONS.AUTHENTICATION_FAILURE] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_FAILURE] = state => Object.assign({}, state, {
   authenticationIsPending: false,
   userIsPending: false,
   user: null
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_FETCH_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_FETCH_STARTED] = state => Object.assign({}, state, {
   userIsPending: true,
   user: defaultState$3.user
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
   userIsPending: false,
   user: action.data.user,
   isLoggedIn: action.data.user.is_identity_verified
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_FETCH_FAILURE] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_FETCH_FAILURE] = state => Object.assign({}, state, {
   userIsPending: true,
   user: null
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_NEW_STARTED] = (state, action) => {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_NEW_STARTED] = (state, action) => {
   const user = Object.assign({}, state.user);
   user.country_code = action.data.country_code;
   return Object.assign({}, state, {
@@ -2435,56 +2521,56 @@ reducers$2[lbryRedux.ACTIONS.USER_PHONE_NEW_STARTED] = (state, action) => {
   });
 };
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_NEW_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_NEW_SUCCESS] = (state, action) => Object.assign({}, state, {
   phoneToVerify: action.data.phone,
   phoneNewIsPending: false
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_RESET] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_RESET] = state => Object.assign({}, state, {
   phoneToVerify: null
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
   phoneNewIsPending: false,
   phoneNewErrorMessage: action.data.error,
   isLoggedIn: false
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_VERIFY_STARTED] = state => Object.assign({}, state, {
   phoneVerifyIsPending: true,
   phoneVerifyErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_VERIFY_ID] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_VERIFY_ID] = (state, action) => Object.assign({}, state, {
   isNewUser: action.data.user.isNew,
   inputType: action.data.user.type,
   input: action.data.user.value
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
   phoneToVerify: '',
   phoneVerifyIsPending: false,
   user: action.data.user,
   isLoggedIn: action.data.user.is_identity_verified
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_LOGOUT_SUCCESS] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_LOGOUT_SUCCESS] = state => Object.assign({}, state, {
   isLoggedIn: false,
   isNewUser: undefined,
   inputType: undefined
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_PHONE_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
   phoneVerifyIsPending: false,
   phoneVerifyErrorMessage: action.data.error
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_NEW_STARTED] = state => Object.assign({}, state, {
   emailNewIsPending: true,
   emailNewErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
   const user = Object.assign({}, state.user);
   user.primary_email = action.data.email;
   return Object.assign({}, state, {
@@ -2494,31 +2580,27 @@ reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_SUCCESS] = (state, action) => {
   });
 };
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_LOGIN] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_LOGIN] = (state, action) => Object.assign({}, state, {
   user: action.data,
   isLoggedIn: action.data.data.is_identity_verified
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_GOOGLE_SUCCESS] = state => Object.assign({}, state, {
-  state
-});
-
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_EXISTS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_NEW_EXISTS] = (state, action) => Object.assign({}, state, {
   emailToVerify: action.data.email,
   emailNewIsPending: false
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
   emailNewIsPending: false,
   emailNewErrorMessage: action.data.error
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_VERIFY_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_VERIFY_STARTED] = state => Object.assign({}, state, {
   emailVerifyIsPending: true,
   emailVerifyErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_VERIFY_SUCCESS] = (state, action) => {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_VERIFY_SUCCESS] = (state, action) => {
   const user = Object.assign({}, state.user);
   user.primary_email = action.data.email;
   return Object.assign({}, state, {
@@ -2528,33 +2610,33 @@ reducers$2[lbryRedux.ACTIONS.USER_EMAIL_VERIFY_SUCCESS] = (state, action) => {
   });
 };
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
   emailVerifyIsPending: false,
   emailVerifyErrorMessage: action.data.error
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_EMAIL_VERIFY_SET] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_EMAIL_VERIFY_SET] = (state, action) => Object.assign({}, state, {
   emailToVerify: action.data.email
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_STARTED] = state => Object.assign({}, state, {
   identityVerifyIsPending: true,
   identityVerifyErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_SUCCESS] = (state, action) => Object.assign({}, state, {
   identityVerifyIsPending: false,
   identityVerifyErrorMessage: '',
   user: action.data.user,
   isLoggedIn: action.data.user.is_identity_verified
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_IDENTITY_VERIFY_FAILURE] = (state, action) => Object.assign({}, state, {
   identityVerifyIsPending: false,
   identityVerifyErrorMessage: action.data.error
 });
 
-reducers$2[lbryRedux.ACTIONS.FETCH_ACCESS_TOKEN_SUCCESS] = (state, action) => {
+reducers$2[ACTIONS.ACTIONS.FETCH_ACCESS_TOKEN_SUCCESS] = (state, action) => {
   const {
     token
   } = action.data;
@@ -2563,33 +2645,33 @@ reducers$2[lbryRedux.ACTIONS.FETCH_ACCESS_TOKEN_SUCCESS] = (state, action) => {
   });
 };
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_STARTED] = state => Object.assign({}, state, {
   inviteStatusIsPending: true
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_SUCCESS] = (state, action) => Object.assign({}, state, {
   inviteStatusIsPending: false,
   invitesRemaining: action.data.invitesRemaining,
   invitees: action.data.invitees,
   referralLink: action.data.referralLink
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_NEW_STARTED] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_NEW_STARTED] = state => Object.assign({}, state, {
   inviteNewIsPending: true,
   inviteNewErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_NEW_SUCCESS] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_NEW_SUCCESS] = state => Object.assign({}, state, {
   inviteNewIsPending: false,
   inviteNewErrorMessage: ''
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
   inviteNewIsPending: false,
   inviteNewErrorMessage: action.data.error.message
 });
 
-reducers$2[lbryRedux.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state => Object.assign({}, state, {
+reducers$2[ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state => Object.assign({}, state, {
   inviteStatusIsPending: false,
   invitesRemaining: null,
   invitees: null
@@ -2707,26 +2789,24 @@ const homepageReducer = handleActions({
 const defaultState$7 = {
   fetchingViewCount: false,
   viewCountError: undefined,
-  viewCountById: {}
+  viewCountById: {},
+  viewCount: 0
 };
 const statsReducer = handleActions({
-  [FETCH_VIEW_COUNT_STARTED]: state => ({ ...state,
-    fetchingViewCount: true
-  }),
-  [FETCH_VIEW_COUNT_FAILED]: (state, action) => ({ ...state,
-    viewCountError: action.data
-  }),
-  [FETCH_VIEW_COUNT_COMPLETED]: (state, action) => {
+  [VIEW_COUNTER]: (state, action) => {
     const {
-      claimId,
       viewCount
     } = action.data;
-    const viewCountById = { ...state.viewCountById,
-      [claimId]: viewCount
-    };
     return { ...state,
-      fetchingViewCount: false,
-      viewCountById
+      viewCount
+    };
+  },
+  [REG_VIEW]: (state, action) => {
+    const {
+      viewCount
+    } = action.data;
+    return { ...state,
+      viewCount
     };
   }
 }, defaultState$7);
@@ -2806,18 +2886,70 @@ const likesReducer = handleActions({
   [LIKE_COUNT]: (state, action) => {
     const {
       likeCount,
-      dislikeCount,
+      dislikeCount
+    } = action.data;
+    return { ...state,
+      likeCount,
+      dislikeCount
+    };
+  },
+  [LIKE_CHECK]: (state, action) => {
+    const {
       likeStatus,
       dislikeStatus
     } = action.data;
     return { ...state,
-      likeCount,
-      dislikeCount,
       likeStatus,
       dislikeStatus
     };
   }
 }, defaultState$9);
+
+const defaultState$a = {
+  playlistUris: {},
+  playlistName: 'Watch Later'
+};
+const playlistReducer = handleActions({
+  [FETCH_PLAYLIST]: (state, action) => {
+    const {
+      playlistUris,
+      playlistName
+    } = action.data;
+    return { ...state,
+      playlistUris,
+      playlistName
+    };
+  },
+  [ADD_TO_PLAYLIST]: (state, action) => {
+    const {
+      playlistName
+    } = action.data;
+    return { ...state,
+      playlistName
+    };
+  },
+  [REMOVE_FROM_PLAYLIST]: (state, action) => {
+    const {
+      playlistName
+    } = action.data;
+    return { ...state,
+      playlistName
+    };
+  }
+}, defaultState$a);
+
+const reducers$4 = {};
+
+reducers$4[ACTIONS.USER_REPORT_TYPE] = (state, action) => Object.assign({}, state, {
+  reportType: action.data.reportType,
+  claimId: action.data.claimId
+});
+
+function reportReducer(state, action) {
+  const handler = reducers$4[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}
 
 const selectState$3 = state => state.auth || {};
 
@@ -2848,8 +2980,8 @@ const selectFetchingTrendingUris = reselect.createSelector(selectState$7, state 
 
 const selectState$8 = state => state.stats || {};
 
-const selectViewCount = reselect.createSelector(selectState$8, state => state.viewCountById);
-const makeSelectViewCountForUri = uri => reselect.createSelector(lbryRedux.makeSelectClaimForUri(uri), selectViewCount, (claim, viewCountById) => viewCountById[claim.claim_id] || 0);
+const selectViewCount = reselect.createSelector(selectState$8, state => state.viewCount);
+const makeSelectViewCountForUri = uri => reselect.createSelector(ACTIONS.makeSelectClaimForUri(uri), selectViewCount, (claim, viewCountById) => viewCountById[claim.claim_id] || 0);
 
 const selectState$9 = state => state.sync || {};
 
@@ -2859,6 +2991,10 @@ const selectSetSyncErrorMessage = reselect.createSelector(selectState$9, state =
 const selectIsRetrievingSync = reselect.createSelector(selectState$9, state => state.retrievingSync);
 const selectIsSettingSync = reselect.createSelector(selectState$9, state => state.settingSync);
 
+const selectState$a = state => state.playlist || {};
+const selectPlaylistName = reselect.createSelector(selectState$a, state => state.playlistName);
+const selectPlaylistUris = reselect.createSelector(selectState$a, state => state.playlistUris);
+
 exports.LBRYINC_ACTIONS = action_types;
 exports.Lbryio = Lbryio;
 exports.authReducer = authReducer;
@@ -2866,6 +3002,7 @@ exports.blacklistReducer = blacklistReducer;
 exports.costInfoReducer = costInfoReducer;
 exports.dislikeCountSelector = dislikeCountSelector;
 exports.dislikeSelector = dislikeSelector;
+exports.doAddToPlaylist = doAddToPlaylist;
 exports.doAuthenticate = doAuthenticate;
 exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
 exports.doChannelSubscribe = doChannelSubscribe;
@@ -2885,6 +3022,7 @@ exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 exports.doFetchFeaturedUris = doFetchFeaturedUris;
 exports.doFetchInviteStatus = doFetchInviteStatus;
 exports.doFetchMySubscriptions = doFetchMySubscriptions;
+exports.doFetchPlaylist = doFetchPlaylist;
 exports.doFetchRecommendedSubscriptions = doFetchRecommendedSubscriptions;
 exports.doFetchRewardedContent = doFetchRewardedContent;
 exports.doFetchTrendingUris = doFetchTrendingUris;
@@ -2892,10 +3030,13 @@ exports.doFetchViewCount = doFetchViewCount;
 exports.doGenerateAuthToken = doGenerateAuthToken;
 exports.doGetSync = doGetSync;
 exports.doInstallNew = doInstallNew;
+exports.doLikeCheck = doLikeCheck;
 exports.doLikeCount = doLikeCount;
 exports.doLikeOnClick = doLikeOnClick;
+exports.doRemoveFromPlaylist = doRemoveFromPlaylist;
 exports.doRemoveUnreadSubscription = doRemoveUnreadSubscription;
 exports.doRemoveUnreadSubscriptions = doRemoveUnreadSubscriptions;
+exports.doReportType = doReportType;
 exports.doRewardList = doRewardList;
 exports.doSetDefaultAccount = doSetDefaultAccount;
 exports.doSetSync = doSetSync;
@@ -2932,6 +3073,8 @@ exports.makeSelectRewardAmountByType = makeSelectRewardAmountByType;
 exports.makeSelectRewardByType = makeSelectRewardByType;
 exports.makeSelectUnreadByChannel = makeSelectUnreadByChannel;
 exports.makeSelectViewCountForUri = makeSelectViewCountForUri;
+exports.playlistReducer = playlistReducer;
+exports.reportReducer = reportReducer;
 exports.rewards = rewards;
 exports.rewardsReducer = rewardsReducer;
 exports.selectAccessToken = selectAccessToken;
@@ -2969,6 +3112,8 @@ exports.selectPhoneNewIsPending = selectPhoneNewIsPending;
 exports.selectPhoneToVerify = selectPhoneToVerify;
 exports.selectPhoneVerifyErrorMessage = selectPhoneVerifyErrorMessage;
 exports.selectPhoneVerifyIsPending = selectPhoneVerifyIsPending;
+exports.selectPlaylistName = selectPlaylistName;
+exports.selectPlaylistUris = selectPlaylistUris;
 exports.selectReferralReward = selectReferralReward;
 exports.selectRewardContentClaimIds = selectRewardContentClaimIds;
 exports.selectSetSyncErrorMessage = selectSetSyncErrorMessage;
@@ -3004,6 +3149,7 @@ exports.selectUserIsRewardApproved = selectUserIsRewardApproved;
 exports.selectUserIsVerificationCandidate = selectUserIsVerificationCandidate;
 exports.selectUserLoggedOut = selectUserLoggedOut;
 exports.selectUserPhone = selectUserPhone;
+exports.selectViewCount = selectViewCount;
 exports.selectViewMode = selectViewMode;
 exports.setSubscriptionLatest = setSubscriptionLatest;
 exports.statsReducer = statsReducer;
