@@ -10,8 +10,12 @@ import {
 } from 'lbry-redux';
 import { swapKeyAndValue } from 'util/swap-json';
 
+
 // Returns the entire subscriptions state
 const selectState = state => state.subscriptions || {};
+
+// Returns the count
+export const selectSubscriptionCount = createSelector(selectState, state => state.subscriptionCount);
 
 // Returns the list of channel uris a user is subscribed to
 export const selectSubscriptions = createSelector(selectState, state => state.subscriptions);

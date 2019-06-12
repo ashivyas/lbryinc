@@ -27,6 +27,7 @@ const defaultState: SubscriptionState = {
   loadingSuggested: false,
   firstRunCompleted: false,
   showSuggestedSubs: false,
+  subscriptionCount: 0,
 };
 
 export default handleActions(
@@ -208,6 +209,14 @@ export default handleActions(
       ...state,
       showSuggestedSubs: true,
     }),
+    [ACTIONS.FETCH_SUBSCRIPTION_COUNT]: (state: SubscriptionState, action) => {
+      const { subscriptionCount } = action.data;
+
+      return {
+        ...state,
+        subscriptionCount,
+      };
+    },
   },
   defaultState
 );

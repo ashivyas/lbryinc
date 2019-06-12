@@ -35,6 +35,7 @@ export {
   doShowSuggestedSubs,
   doUpdateUnreadSubscriptions,
   setSubscriptionLatest,
+  doCountSubscriptions,
 } from 'redux/actions/subscriptions';
 export {
   doFetchInviteStatus,
@@ -62,10 +63,23 @@ export { doReportType } from 'redux/actions/report';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
 export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage';
-export { doFetchViewCount } from 'redux/actions/stats';
+export { doFetchViewCount, doRegView  } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
-export { doLikeOnClick, doDislikeOnClick, doLikeCount, doLikeCheck } from 'redux/actions/likes';
+export {
+  doLikeOnClick,
+  doDislikeOnClick,
+  doLikeCount,
+  doLikeCheck,
+  doFetchLikedList,
+} from 'redux/actions/likes';
 export { doFetchPlaylist, doAddToPlaylist, doRemoveFromPlaylist } from 'redux/actions/playlist';
+export { doFetchCategoryList } from 'redux/actions/category';
+export {
+  doAddToHistory,
+  doFetchHistoryList,
+  doRemoveFromHistory,
+  doRemoveAllFromHistory,
+} from 'redux/actions/history';
 
 // reducers
 export { authReducer } from 'redux/reducers/auth';
@@ -80,6 +94,8 @@ export { syncReducer } from 'redux/reducers/sync';
 export { likesReducer } from 'redux/reducers/likes';
 export { playlistReducer } from 'redux/reducers/playlist';
 export { reportReducer } from 'redux/reducers/report';
+export { categoryReducer } from 'redux/reducers/category';
+export { historyReducer } from 'redux/reducers/history';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from 'redux/selectors/auth';
@@ -118,6 +134,7 @@ export {
   selectUnreadAmount,
   selectUnreadSubscriptions,
   selectSubscriptionClaims,
+  selectSubscriptionCount,
 } from 'redux/selectors/subscriptions';
 export {
   selectAuthenticationIsPending,
@@ -158,6 +175,7 @@ export {
   dislikeSelector,
   likeCountSelector,
   dislikeCountSelector,
+  selectLikedList,
 } from 'redux/selectors/likes';
 export {
   makeSelectFetchingCostInfoForUri,
@@ -181,3 +199,5 @@ export {
   selectIsSettingSync,
 } from 'redux/selectors/sync';
 export { selectPlaylistName, selectPlaylistUris } from 'redux/selectors/playlist';
+export { selectCategoryListing } from 'redux/selectors/category';
+export { selectHistoryList } from 'redux/selectors/history';

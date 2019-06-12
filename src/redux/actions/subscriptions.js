@@ -458,3 +458,13 @@ export const doChannelSubscriptionDisableNotifications = (channelName: string) =
     type: ACTIONS.CHANNEL_SUBSCRIPTION_DISABLE_NOTIFICATIONS,
     data: channelName,
   });
+
+export const doCountSubscriptions = claimId => (dispatch: ReduxDispatch) =>
+  Lbryio.call('subscription', 'count', { claim_id: claimId }).then(count => {
+    dispatch({
+      type: ACTIONS.FETCH_SUBSCRIPTION_COUNT,
+      data: {
+        subscriptionCount: count,
+      },
+    });
+  });

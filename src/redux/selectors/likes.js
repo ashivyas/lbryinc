@@ -21,3 +21,8 @@ export const dislikeCountSelector = createSelector(
   selectState,
   state => state.dislikeCount
 );
+
+export const selectLikedList = createSelector(
+  selectState,
+  state => state.likedUris
+);

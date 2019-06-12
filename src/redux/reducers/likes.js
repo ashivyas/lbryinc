@@ -52,6 +52,14 @@ export const likesReducer = handleActions(
         dislikeStatus,
       };
     },
+    [ACTIONS.FETCH_LIKED_LIST]: (state, action) => {
+      const { likedUris } = action.data;
+
+      return {
+        ...state,
+        likedUris,
+      };
+    },
   },
   defaultState
 );
