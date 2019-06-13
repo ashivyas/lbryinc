@@ -59,7 +59,8 @@ const GET_SUGGESTED_SUBSCRIPTIONS_START = 'GET_SUGGESTED_SUBSCRIPTIONS_START';
 const GET_SUGGESTED_SUBSCRIPTIONS_SUCCESS = 'GET_SUGGESTED_SUBSCRIPTIONS_SUCCESS';
 const GET_SUGGESTED_SUBSCRIPTIONS_FAIL = 'GET_SUGGESTED_SUBSCRIPTIONS_FAIL';
 const SUBSCRIPTION_FIRST_RUN_COMPLETED = 'SUBSCRIPTION_FIRST_RUN_COMPLETED';
-const VIEW_SUGGESTED_SUBSCRIPTIONS = 'VIEW_SUGGESTED_SUBSCRIPTIONS'; // Blacklist
+const VIEW_SUGGESTED_SUBSCRIPTIONS = 'VIEW_SUGGESTED_SUBSCRIPTIONS';
+const FETCH_SUBSCRIPTION_COUNT = 'FETCH_SUBSCRIPTION_COUNT'; // Blacklist
 
 const FETCH_BLACK_LISTED_CONTENT_STARTED = 'FETCH_BLACK_LISTED_CONTENT_STARTED';
 const FETCH_BLACK_LISTED_CONTENT_COMPLETED = 'FETCH_BLACK_LISTED_CONTENT_COMPLETED';
@@ -83,14 +84,22 @@ const SET_DEFAULT_ACCOUNT = 'SET_DEFAULT_ACCOUNT'; // Likes
 const LIKE_ON_CLICK = 'LIKE_ON_CLICK';
 const LIKE_COUNT = 'LIKE_COUNT';
 const LIKE_CHECK = 'LIKE_CHECK';
-const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK'; // Views
+const DISLIKE_ON_CLICK = 'DISLIKE_ON_CLICK';
+const FETCH_LIKED_LIST = 'FETCH_LIKED_LIST'; // Views
 
 const REG_VIEW = 'REG_VIEW';
 const VIEW_COUNTER = 'REG_COUNTER'; // Playlist - Default Watch Later
 
 const FETCH_PLAYLIST = 'FETCH_PLAYLIST';
 const ADD_TO_PLAYLIST = 'ADD_TO_PLAYLIST';
-const REMOVE_FROM_PLAYLIST = 'REMOVE_FROM_PLAYLIST';
+const REMOVE_FROM_PLAYLIST = 'REMOVE_FROM_PLAYLIST'; // Category List
+
+const FETCH_CATEGORY_LIST = 'FETCH_CATEGORY_LIST'; // User History
+
+const ADD_TO_HISTORY = 'ADD_TO_HISTORY';
+const FETCH_HISTORY = 'FETCH_HISTORY';
+const DELETE_HISTORY = 'DELETE_HISTORY';
+const DELETE_ALL_HISTORY = 'DELETE_ALL_HISTORY';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -142,6 +151,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   GET_SUGGESTED_SUBSCRIPTIONS_FAIL: GET_SUGGESTED_SUBSCRIPTIONS_FAIL,
   SUBSCRIPTION_FIRST_RUN_COMPLETED: SUBSCRIPTION_FIRST_RUN_COMPLETED,
   VIEW_SUGGESTED_SUBSCRIPTIONS: VIEW_SUGGESTED_SUBSCRIPTIONS,
+  FETCH_SUBSCRIPTION_COUNT: FETCH_SUBSCRIPTION_COUNT,
   FETCH_BLACK_LISTED_CONTENT_STARTED: FETCH_BLACK_LISTED_CONTENT_STARTED,
   FETCH_BLACK_LISTED_CONTENT_COMPLETED: FETCH_BLACK_LISTED_CONTENT_COMPLETED,
   FETCH_BLACK_LISTED_CONTENT_FAILED: FETCH_BLACK_LISTED_CONTENT_FAILED,
@@ -161,11 +171,17 @@ var action_types = /*#__PURE__*/Object.freeze({
   LIKE_COUNT: LIKE_COUNT,
   LIKE_CHECK: LIKE_CHECK,
   DISLIKE_ON_CLICK: DISLIKE_ON_CLICK,
+  FETCH_LIKED_LIST: FETCH_LIKED_LIST,
   REG_VIEW: REG_VIEW,
   VIEW_COUNTER: VIEW_COUNTER,
   FETCH_PLAYLIST: FETCH_PLAYLIST,
   ADD_TO_PLAYLIST: ADD_TO_PLAYLIST,
-  REMOVE_FROM_PLAYLIST: REMOVE_FROM_PLAYLIST
+  REMOVE_FROM_PLAYLIST: REMOVE_FROM_PLAYLIST,
+  FETCH_CATEGORY_LIST: FETCH_CATEGORY_LIST,
+  ADD_TO_HISTORY: ADD_TO_HISTORY,
+  FETCH_HISTORY: FETCH_HISTORY,
+  DELETE_HISTORY: DELETE_HISTORY,
+  DELETE_ALL_HISTORY: DELETE_ALL_HISTORY
 });
 
 const Lbryio = {
@@ -512,7 +528,8 @@ const defaultState = {
   viewMode: VIEW_ALL,
   loadingSuggested: false,
   firstRunCompleted: false,
-  showSuggestedSubs: false
+  showSuggestedSubs: false,
+  subscriptionCount: 0
 };
 var subscriptions = handleActions({
   [CHANNEL_SUBSCRIBE]: (state, action) => {
@@ -640,7 +657,15 @@ var subscriptions = handleActions({
   }),
   [VIEW_SUGGESTED_SUBSCRIPTIONS]: state => ({ ...state,
     showSuggestedSubs: true
-  })
+  }),
+  [FETCH_SUBSCRIPTION_COUNT]: (state, action) => {
+    const {
+      subscriptionCount
+    } = action.data;
+    return { ...state,
+      subscriptionCount
+    };
+  }
 }, defaultState);
 
 function doGenerateAuthToken(installationId) {
@@ -1405,8 +1430,10 @@ function swapKeyAndValue(dict) {
   return ret;
 }
 
-const selectState$2 = state => state.subscriptions || {}; // Returns the list of channel uris a user is subscribed to
+const selectState$2 = state => state.subscriptions || {}; // Returns the count
 
+
+const selectSubscriptionCount = reselect.createSelector(selectState$2, state => state.subscriptionCount); // Returns the list of channel uris a user is subscribed to
 
 const selectSubscriptions = reselect.createSelector(selectState$2, state => state.subscriptions); // Fetching list of users subscriptions
 
@@ -1954,6 +1981,16 @@ const doChannelSubscriptionDisableNotifications = channelName => dispatch => dis
   type: CHANNEL_SUBSCRIPTION_DISABLE_NOTIFICATIONS,
   data: channelName
 });
+const doCountSubscriptions = claimId => dispatch => Lbryio.call('subscription', 'count', {
+  claim_id: claimId
+}).then(count => {
+  dispatch({
+    type: FETCH_SUBSCRIPTION_COUNT,
+    data: {
+      subscriptionCount: count
+    }
+  });
+});
 
 function doReportType(reportType, claimId) {
   return dispatch => {
@@ -2072,6 +2109,20 @@ function doFetchViewCount(claimId) {
     }).then(res => {
       dispatch({
         type: VIEW_COUNTER,
+        data: {
+          viewCount: res.count
+        }
+      });
+    });
+  };
+}
+function doRegView(claimId) {
+  return dispatch => {
+    Lbryio.call('file', 'view_count', {
+      claim_id: claimId
+    }, 'post').then(res => {
+      dispatch({
+        type: REG_VIEW,
         data: {
           viewCount: res.count
         }
@@ -2208,11 +2259,12 @@ function doGetSync(password) {
   };
 }
 
-function doLikeOnClick(claimId, likeStatus) {
+function doLikeOnClick(claimId, likeStatus, claimName) {
   return dispatch => {
     Lbryio.call('likes', 'like', {
       claim_id: claimId,
-      liked: likeStatus
+      liked: likeStatus,
+      claim_name: claimName
     }, 'post').then(() => {
       dispatch({
         type: LIKE_ON_CLICK,
@@ -2223,11 +2275,12 @@ function doLikeOnClick(claimId, likeStatus) {
     });
   };
 }
-function doDislikeOnClick(claimId, dislikeStatus) {
+function doDislikeOnClick(claimId, dislikeStatus, claimName) {
   return dispatch => {
     Lbryio.call('likes', 'dislike', {
       claim_id: claimId,
-      disliked: dislikeStatus
+      disliked: dislikeStatus,
+      claim_name: claimName
     }, 'post').then(() => {
       dispatch({
         type: DISLIKE_ON_CLICK,
@@ -2265,6 +2318,18 @@ function doLikeCheck(claimId) {
         data: {
           likeStatus: count.likeStatus,
           dislikeStatus: count.dislikeStatus
+        }
+      });
+    });
+  };
+}
+function doFetchLikedList() {
+  return dispatch => {
+    Lbryio.call('likes', 'list').then(list => {
+      dispatch({
+        type: FETCH_LIKED_LIST,
+        data: {
+          likedUris: list
         }
       });
     });
@@ -2314,6 +2379,65 @@ function doRemoveFromPlaylist(claimId, playlistName) {
         data: {
           playlistName
         }
+      });
+    });
+  };
+}
+
+function doFetchCategoryList() {
+  return dispatch => {
+    Lbryio.call('file', 'category_list').then(res => {
+      dispatch({
+        type: FETCH_CATEGORY_LIST,
+        data: {
+          categoryListing: res
+        }
+      });
+    });
+  };
+}
+
+//      
+function doAddToHistory(claimId, claimName) {
+  return dispatch => {
+    Lbryio.call('history', 'add', {
+      claim_id: claimId,
+      claim_name: claimName
+    }, 'post').then(() => {
+      dispatch({
+        type: ADD_TO_HISTORY
+      });
+    });
+  };
+}
+function doFetchHistoryList() {
+  return dispatch => {
+    Lbryio.call('history', 'list').then(list => {
+      dispatch({
+        type: FETCH_HISTORY,
+        data: {
+          historyList: list
+        }
+      });
+    });
+  };
+}
+function doRemoveFromHistory(claimId) {
+  return dispatch => {
+    Lbryio.call('history', 'delete', {
+      claim_id: claimId
+    }, 'post').then(() => {
+      dispatch({
+        type: DELETE_HISTORY
+      });
+    });
+  };
+}
+function doRemoveAllFromHistory() {
+  return dispatch => {
+    Lbryio.call('history', 'delete_all', {}, 'post').then(() => {
+      dispatch({
+        type: DELETE_ALL_HISTORY
       });
     });
   };
@@ -2902,6 +3026,14 @@ const likesReducer = handleActions({
       likeStatus,
       dislikeStatus
     };
+  },
+  [FETCH_LIKED_LIST]: (state, action) => {
+    const {
+      likedUris
+    } = action.data;
+    return { ...state,
+      likedUris
+    };
   }
 }, defaultState$9);
 
@@ -2951,6 +3083,40 @@ function reportReducer(state, action) {
   return state;
 }
 
+const defaultState$b = {
+  categoryListing: {}
+};
+const categoryReducer = handleActions({
+  [FETCH_CATEGORY_LIST]: (state, action) => {
+    const {
+      categoryListing
+    } = action.data;
+    return { ...state,
+      categoryListing
+    };
+  }
+}, defaultState$b);
+
+const defaultState$c = {
+  historyList: {}
+};
+const historyReducer = handleActions({
+  [ADD_TO_HISTORY]: (state, action) => ({ ...state
+  }),
+  [FETCH_HISTORY]: (state, action) => {
+    const {
+      historyList
+    } = action.data;
+    return { ...state,
+      historyList
+    };
+  },
+  [DELETE_HISTORY]: (state, action) => ({ ...state
+  }),
+  [DELETE_ALL_HISTORY]: (state, action) => ({ ...state
+  })
+}, defaultState$c);
+
 const selectState$3 = state => state.auth || {};
 
 const selectAuthToken = reselect.createSelector(selectState$3, state => state.authToken);
@@ -2961,6 +3127,7 @@ const likeSelector = reselect.createSelector(selectState$4, state => state.likeS
 const dislikeSelector = reselect.createSelector(selectState$4, state => state.dislikeStatus);
 const likeCountSelector = reselect.createSelector(selectState$4, state => state.likeCount);
 const dislikeCountSelector = reselect.createSelector(selectState$4, state => state.dislikeCount);
+const selectLikedList = reselect.createSelector(selectState$4, state => state.likedUris);
 
 const selectState$5 = state => state.costInfo || {};
 const selectAllCostInfoByUri = reselect.createSelector(selectState$5, state => state.byUri || {});
@@ -2995,13 +3162,22 @@ const selectState$a = state => state.playlist || {};
 const selectPlaylistName = reselect.createSelector(selectState$a, state => state.playlistName);
 const selectPlaylistUris = reselect.createSelector(selectState$a, state => state.playlistUris);
 
+const selectState$b = state => state.category || {};
+const selectCategoryListing = reselect.createSelector(selectState$b, state => state.categoryListing);
+
+const selectState$c = state => state.history || {};
+
+const selectHistoryList = reselect.createSelector(selectState$c, state => state.historyList);
+
 exports.LBRYINC_ACTIONS = action_types;
 exports.Lbryio = Lbryio;
 exports.authReducer = authReducer;
 exports.blacklistReducer = blacklistReducer;
+exports.categoryReducer = categoryReducer;
 exports.costInfoReducer = costInfoReducer;
 exports.dislikeCountSelector = dislikeCountSelector;
 exports.dislikeSelector = dislikeSelector;
+exports.doAddToHistory = doAddToHistory;
 exports.doAddToPlaylist = doAddToPlaylist;
 exports.doAuthenticate = doAuthenticate;
 exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
@@ -3016,11 +3192,15 @@ exports.doClaimEligiblePurchaseRewards = doClaimEligiblePurchaseRewards;
 exports.doClaimRewardClearError = doClaimRewardClearError;
 exports.doClaimRewardType = doClaimRewardType;
 exports.doCompleteFirstRun = doCompleteFirstRun;
+exports.doCountSubscriptions = doCountSubscriptions;
 exports.doDislikeOnClick = doDislikeOnClick;
 exports.doFetchAccessToken = doFetchAccessToken;
+exports.doFetchCategoryList = doFetchCategoryList;
 exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 exports.doFetchFeaturedUris = doFetchFeaturedUris;
+exports.doFetchHistoryList = doFetchHistoryList;
 exports.doFetchInviteStatus = doFetchInviteStatus;
+exports.doFetchLikedList = doFetchLikedList;
 exports.doFetchMySubscriptions = doFetchMySubscriptions;
 exports.doFetchPlaylist = doFetchPlaylist;
 exports.doFetchRecommendedSubscriptions = doFetchRecommendedSubscriptions;
@@ -3033,6 +3213,9 @@ exports.doInstallNew = doInstallNew;
 exports.doLikeCheck = doLikeCheck;
 exports.doLikeCount = doLikeCount;
 exports.doLikeOnClick = doLikeOnClick;
+exports.doRegView = doRegView;
+exports.doRemoveAllFromHistory = doRemoveAllFromHistory;
+exports.doRemoveFromHistory = doRemoveFromHistory;
 exports.doRemoveFromPlaylist = doRemoveFromPlaylist;
 exports.doRemoveUnreadSubscription = doRemoveUnreadSubscription;
 exports.doRemoveUnreadSubscriptions = doRemoveUnreadSubscriptions;
@@ -3059,6 +3242,7 @@ exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
 exports.doUserPhoneVerifyFailure = doUserPhoneVerifyFailure;
 exports.doUserResendVerificationEmail = doUserResendVerificationEmail;
+exports.historyReducer = historyReducer;
 exports.homepageReducer = homepageReducer;
 exports.likeCountSelector = likeCountSelector;
 exports.likeSelector = likeSelector;
@@ -3082,6 +3266,7 @@ exports.selectAllCostInfoByUri = selectAllCostInfoByUri;
 exports.selectAuthToken = selectAuthToken;
 exports.selectAuthenticationIsPending = selectAuthenticationIsPending;
 exports.selectBlackListedOutpoints = selectBlackListedOutpoints;
+exports.selectCategoryListing = selectCategoryListing;
 exports.selectClaimErrorsByType = selectClaimErrorsByType;
 exports.selectClaimedRewards = selectClaimedRewards;
 exports.selectClaimedRewardsById = selectClaimedRewardsById;
@@ -3100,6 +3285,7 @@ exports.selectFetchingRewards = selectFetchingRewards;
 exports.selectFetchingTrendingUris = selectFetchingTrendingUris;
 exports.selectFirstRunCompleted = selectFirstRunCompleted;
 exports.selectHasSyncedWallet = selectHasSyncedWallet;
+exports.selectHistoryList = selectHistoryList;
 exports.selectIdentityVerifyErrorMessage = selectIdentityVerifyErrorMessage;
 exports.selectIdentityVerifyIsPending = selectIdentityVerifyIsPending;
 exports.selectIsAuthenticating = selectIsAuthenticating;
@@ -3107,6 +3293,7 @@ exports.selectIsFetchingSubscriptions = selectIsFetchingSubscriptions;
 exports.selectIsFetchingSuggested = selectIsFetchingSuggested;
 exports.selectIsRetrievingSync = selectIsRetrievingSync;
 exports.selectIsSettingSync = selectIsSettingSync;
+exports.selectLikedList = selectLikedList;
 exports.selectPhoneNewErrorMessage = selectPhoneNewErrorMessage;
 exports.selectPhoneNewIsPending = selectPhoneNewIsPending;
 exports.selectPhoneToVerify = selectPhoneToVerify;
@@ -3119,6 +3306,7 @@ exports.selectRewardContentClaimIds = selectRewardContentClaimIds;
 exports.selectSetSyncErrorMessage = selectSetSyncErrorMessage;
 exports.selectShowSuggestedSubs = selectShowSuggestedSubs;
 exports.selectSubscriptionClaims = selectSubscriptionClaims;
+exports.selectSubscriptionCount = selectSubscriptionCount;
 exports.selectSubscriptions = selectSubscriptions;
 exports.selectSubscriptionsBeingFetched = selectSubscriptionsBeingFetched;
 exports.selectSuggested = selectSuggested;
