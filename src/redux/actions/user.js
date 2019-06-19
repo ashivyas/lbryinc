@@ -188,7 +188,7 @@ export function doUserPhoneVerify(verificationCode) {
 export function doUserLogout() {
   return dispatch => {
     Lbryio.call('user', 'logout', {}, 'post').then(data => {
-      if (data.user_id === '') {
+      if (data.user_id === '' || data.user_id === null || data.user_id === undefined) {
         dispatch({
           type: ACTIONS.USER_LOGOUT_SUCCESS,
           data: { data },
@@ -411,7 +411,7 @@ export function doUserCheckId(input) {
             type: ACTIONS.USER_VERIFY_ID,
             data: { user },
           });
-          dispatch(doUserPhoneNew(user.value));
+          // dispatch(doUserPhoneNew(user.value));
         } else if (user.type === 'email') {
           dispatch({
             type: ACTIONS.USER_VERIFY_ID,

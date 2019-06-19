@@ -2343,7 +2343,7 @@ function doUserPhoneVerify(verificationCode) {
 function doUserLogout() {
   return function (dispatch) {
     lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user', 'logout', {}, 'post').then(function (data) {
-      if (data.user_id === '') {
+      if (data.user_id === '' || data.user_id === null || data.user_id === undefined) {
         dispatch({
           type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_LOGOUT_SUCCESS,
           data: {
@@ -2578,8 +2578,7 @@ function doUserCheckId(input) {
           data: {
             user: user
           }
-        });
-        dispatch(doUserPhoneNew(user.value));
+        }); // dispatch(doUserPhoneNew(user.value));
       } else if (user.type === 'email') {
         dispatch({
           type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_VERIFY_ID,
@@ -4345,7 +4344,7 @@ reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PHONE_VERIFY_ST
 reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_VERIFY_ID] = function (state, action) {
   return Object.assign({}, state, {
     isNewUser: action.data.user.isNew,
-    inputType: action.data.user.type,
+    // inputType: action.data.user.type,
     input: action.data.user.value
   });
 };

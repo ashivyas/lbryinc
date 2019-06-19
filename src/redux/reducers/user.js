@@ -95,7 +95,7 @@ reducers[ACTIONS.USER_PHONE_VERIFY_STARTED] = state =>
 reducers[ACTIONS.USER_VERIFY_ID] = (state, action) =>
   Object.assign({}, state, {
     isNewUser: action.data.user.isNew,
-    inputType: action.data.user.type,
+    // inputType: action.data.user.type,
     input: action.data.user.value,
   });
 
