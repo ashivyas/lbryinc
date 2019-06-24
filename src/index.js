@@ -54,16 +54,22 @@ export {
   doUserPhoneReset,
   doUserPhoneVerifyFailure,
   doUserPhoneVerify,
+  doUserMobileVerify,
   doFetchAccessToken,
   doUserResendVerificationEmail,
   doUserIdentityVerify,
   doUserInviteNew,
+  doUserReport,
 } from 'redux/actions/user';
 export { doReportType } from 'redux/actions/report';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
 export { doBlackListedOutpointsSubscribe } from 'redux/actions/blacklist';
-export { doFetchFeaturedUris, doFetchTrendingUris } from 'redux/actions/homepage';
-export { doFetchViewCount, doRegView  } from 'redux/actions/stats';
+export {
+  doFetchFeaturedUris,
+  doFetchTrendingUris,
+  doFetchContentCategory,
+} from 'redux/actions/homepage';
+export { doFetchViewCount, doRegView } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
 export {
   doLikeOnClick,
@@ -171,6 +177,7 @@ export {
   selectUserInviteNewIsPending,
   selectUserInviteNewErrorMessage,
   selectUserInviteReferralLink,
+  selectUserReport,
 } from 'redux/selectors/user';
 export {
   likeSelector,
@@ -191,8 +198,12 @@ export {
   selectFetchingFeaturedUris,
   selectTrendingUris,
   selectFetchingTrendingUris,
+  selectContentCategory,
 } from 'redux/selectors/homepage';
 export { makeSelectViewCountForUri, selectViewCount } from 'redux/selectors/stats';
+export { selectPlaylistName, selectPlaylistUris } from 'redux/selectors/playlist';
+export { selectCategoryListing } from 'redux/selectors/category';
+export { selectHistoryList } from 'redux/selectors/history';
 export {
   selectHasSyncedWallet,
   selectSyncHash,
@@ -200,6 +211,3 @@ export {
   selectIsRetrievingSync,
   selectIsSettingSync,
 } from 'redux/selectors/sync';
-export { selectPlaylistName, selectPlaylistUris } from 'redux/selectors/playlist';
-export { selectCategoryListing } from 'redux/selectors/category';
-export { selectHistoryList } from 'redux/selectors/history';

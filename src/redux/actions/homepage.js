@@ -78,11 +78,11 @@ export function doFetchTrendingUris() {
 }
 
 // eslint-disable-next-line camelcase
-export function doFetchCategoryContent(content_category) {
+export function doFetchContentCategory(content_category) {
   return dispatch => {
     Lbryio.call(
       'file',
-      'fetchCategoryContent',
+      'fetchContentCategory',
       {
         content_category,
       },

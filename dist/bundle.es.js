@@ -850,6 +850,21 @@ function doFetchTrendingUris() {
   };
 } // eslint-disable-next-line camelcase
 
+function doFetchContentCategory(content_category) {
+  return dispatch => {
+    Lbryio.call('file', 'fetchContentCategory', {
+      content_category
+    }, 'post').then(data => {
+      dispatch({
+        type: FETCH_CONTENT_CATEGORY,
+        data: {
+          uris: data
+        }
+      });
+    });
+  };
+}
+
 function doFetchInviteStatus() {
   return dispatch => {
     dispatch({
@@ -1025,6 +1040,29 @@ function doUserPhoneVerify(verificationCode) {
     }).catch(error => dispatch(doUserPhoneVerifyFailure(error)));
   };
 }
+function doUserMobileVerify(mobileNo, verificationCode) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.ACTIONS.USER_PHONE_VERIFY_STARTED,
+      code: verificationCode
+    });
+    Lbryio.call('user_mobile', 'phone_number_confirm', {
+      verification_code: verificationCode,
+      mobileNo // country_code: countryCode,
+
+    }, 'post').then(user => {
+      if (user.is_identity_verified) {
+        dispatch({
+          type: ACTIONS.ACTIONS.USER_PHONE_VERIFY_SUCCESS,
+          data: {
+            user
+          }
+        });
+        dispatch(doFetchFeaturedUris());
+      }
+    }).catch(error => dispatch(doUserPhoneVerifyFailure(error)));
+  };
+}
 function doUserLogout() {
   return dispatch => {
     Lbryio.call('user', 'logout', {}, 'post').then(data => {
@@ -1039,6 +1077,23 @@ function doUserLogout() {
     });
   };
 } // eslint-disable-next-line camelcase
+
+function doUserReport(report_type, report_reason, claim_id) {
+  return dispatch => {
+    Lbryio.call('app', 'report', {
+      report_type,
+      report_reason,
+      claim_id
+    }, 'post').then(data => {
+      dispatch({
+        type: ACTIONS.ACTIONS.USER_REPORT_SUCCESS,
+        data: {
+          data
+        }
+      });
+    });
+  };
+}
 function doUserEmailToVerify(email) {
   return dispatch => {
     dispatch({
@@ -3224,24 +3279,24 @@ const selectState$8 = state => state.stats || {};
 const selectViewCount = reselect.createSelector(selectState$8, state => state.viewCount);
 const makeSelectViewCountForUri = uri => reselect.createSelector(ACTIONS.makeSelectClaimForUri(uri), selectViewCount, (claim, viewCountById) => viewCountById[claim.claim_id] || 0);
 
-const selectState$9 = state => state.sync || {};
+const selectState$9 = state => state.playlist || {};
+const selectPlaylistName = reselect.createSelector(selectState$9, state => state.playlistName);
+const selectPlaylistUris = reselect.createSelector(selectState$9, state => state.playlistUris);
 
-const selectHasSyncedWallet = reselect.createSelector(selectState$9, state => state.hasSyncedWallet);
-const selectSyncHash = reselect.createSelector(selectState$9, state => state.syncHash);
-const selectSetSyncErrorMessage = reselect.createSelector(selectState$9, state => state.setSyncErrorMessage);
-const selectIsRetrievingSync = reselect.createSelector(selectState$9, state => state.retrievingSync);
-const selectIsSettingSync = reselect.createSelector(selectState$9, state => state.settingSync);
+const selectState$a = state => state.category || {};
+const selectCategoryListing = reselect.createSelector(selectState$a, state => state.categoryListing);
 
-const selectState$a = state => state.playlist || {};
-const selectPlaylistName = reselect.createSelector(selectState$a, state => state.playlistName);
-const selectPlaylistUris = reselect.createSelector(selectState$a, state => state.playlistUris);
+const selectState$b = state => state.history || {};
 
-const selectState$b = state => state.category || {};
-const selectCategoryListing = reselect.createSelector(selectState$b, state => state.categoryListing);
+const selectHistoryList = reselect.createSelector(selectState$b, state => state.historyList);
 
-const selectState$c = state => state.history || {};
+const selectState$c = state => state.sync || {};
 
-const selectHistoryList = reselect.createSelector(selectState$c, state => state.historyList);
+const selectHasSyncedWallet = reselect.createSelector(selectState$c, state => state.hasSyncedWallet);
+const selectSyncHash = reselect.createSelector(selectState$c, state => state.syncHash);
+const selectSetSyncErrorMessage = reselect.createSelector(selectState$c, state => state.setSyncErrorMessage);
+const selectIsRetrievingSync = reselect.createSelector(selectState$c, state => state.retrievingSync);
+const selectIsSettingSync = reselect.createSelector(selectState$c, state => state.settingSync);
 
 exports.LBRYINC_ACTIONS = action_types;
 exports.Lbryio = Lbryio;
@@ -3271,6 +3326,7 @@ exports.doCountSubscriptions = doCountSubscriptions;
 exports.doDislikeOnClick = doDislikeOnClick;
 exports.doFetchAccessToken = doFetchAccessToken;
 exports.doFetchCategoryList = doFetchCategoryList;
+exports.doFetchContentCategory = doFetchContentCategory;
 exports.doFetchCostInfoForUri = doFetchCostInfoForUri;
 exports.doFetchFeaturedUris = doFetchFeaturedUris;
 exports.doFetchHistoryList = doFetchHistoryList;
@@ -3313,10 +3369,12 @@ exports.doUserFetch = doUserFetch;
 exports.doUserIdentityVerify = doUserIdentityVerify;
 exports.doUserInviteNew = doUserInviteNew;
 exports.doUserLogout = doUserLogout;
+exports.doUserMobileVerify = doUserMobileVerify;
 exports.doUserPhoneNew = doUserPhoneNew;
 exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
 exports.doUserPhoneVerifyFailure = doUserPhoneVerifyFailure;
+exports.doUserReport = doUserReport;
 exports.doUserResendVerificationEmail = doUserResendVerificationEmail;
 exports.historyReducer = historyReducer;
 exports.homepageReducer = homepageReducer;
@@ -3349,6 +3407,7 @@ exports.selectClaimedRewards = selectClaimedRewards;
 exports.selectClaimedRewardsById = selectClaimedRewardsById;
 exports.selectClaimedRewardsByTransactionId = selectClaimedRewardsByTransactionId;
 exports.selectClaimsPendingByType = selectClaimsPendingByType;
+exports.selectContentCategory = selectContentCategory;
 exports.selectEmailNewErrorMessage = selectEmailNewErrorMessage;
 exports.selectEmailNewIsPending = selectEmailNewIsPending;
 exports.selectEmailToVerify = selectEmailToVerify;
@@ -3414,6 +3473,7 @@ exports.selectUserIsRewardApproved = selectUserIsRewardApproved;
 exports.selectUserIsVerificationCandidate = selectUserIsVerificationCandidate;
 exports.selectUserLoggedOut = selectUserLoggedOut;
 exports.selectUserPhone = selectUserPhone;
+exports.selectUserReport = selectUserReport;
 exports.selectViewCount = selectViewCount;
 exports.selectViewMode = selectViewMode;
 exports.setSubscriptionLatest = setSubscriptionLatest;
