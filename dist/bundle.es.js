@@ -99,7 +99,14 @@ const FETCH_CATEGORY_LIST = 'FETCH_CATEGORY_LIST'; // User History
 const ADD_TO_HISTORY = 'ADD_TO_HISTORY';
 const FETCH_HISTORY = 'FETCH_HISTORY';
 const DELETE_HISTORY = 'DELETE_HISTORY';
-const DELETE_ALL_HISTORY = 'DELETE_ALL_HISTORY';
+const DELETE_ALL_HISTORY = 'DELETE_ALL_HISTORY'; // Search Queries
+
+const AUTOCOMPLETE_SEARCH_QUERY = 'AUTOCOMPLETE_SEARCH_QUERY';
+const SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
+
+const USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
+
+const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -181,7 +188,11 @@ var action_types = /*#__PURE__*/Object.freeze({
   ADD_TO_HISTORY: ADD_TO_HISTORY,
   FETCH_HISTORY: FETCH_HISTORY,
   DELETE_HISTORY: DELETE_HISTORY,
-  DELETE_ALL_HISTORY: DELETE_ALL_HISTORY
+  DELETE_ALL_HISTORY: DELETE_ALL_HISTORY,
+  AUTOCOMPLETE_SEARCH_QUERY: AUTOCOMPLETE_SEARCH_QUERY,
+  SEARCH_QUERY_RESULT: SEARCH_QUERY_RESULT,
+  USER_REPORT_SUCCESS: USER_REPORT_SUCCESS,
+  FETCH_CONTENT_CATEGORY: FETCH_CONTENT_CATEGORY
 });
 
 const Lbryio = {
@@ -755,6 +766,7 @@ const selectEmailVerifyErrorMessage = reselect.createSelector(selectState$1, sta
 const selectPhoneNewIsPending = reselect.createSelector(selectState$1, state => state.phoneNewIsPending && state.otpSent);
 const selectPhoneVerifyIsPending = reselect.createSelector(selectState$1, state => state.phoneVerifyIsPending);
 const selectPhoneVerifyErrorMessage = reselect.createSelector(selectState$1, state => state.phoneVerifyErrorMessage);
+const selectUserReport = reselect.createSelector(selectState$1, state => state.claim_id && state.report_type);
 const selectIdentityVerifyIsPending = reselect.createSelector(selectState$1, state => state.identityVerifyIsPending);
 const selectIdentityVerifyErrorMessage = reselect.createSelector(selectState$1, state => state.identityVerifyErrorMessage);
 const selectUserIsVerificationCandidate = reselect.createSelector(selectUser, user => user && (!user.has_verified_email || !user.is_identity_verified));
@@ -836,7 +848,7 @@ function doFetchTrendingUris() {
 
     Lbryio.call('file', 'list_trending').then(success, failure);
   };
-}
+} // eslint-disable-next-line camelcase
 
 function doFetchInviteStatus() {
   return dispatch => {
@@ -1026,7 +1038,7 @@ function doUserLogout() {
       }
     });
   };
-}
+} // eslint-disable-next-line camelcase
 function doUserEmailToVerify(email) {
   return dispatch => {
     dispatch({
@@ -2442,6 +2454,32 @@ function doRemoveAllFromHistory() {
   };
 }
 
+//      
+function doAutocompleteSearchQuery() {
+  return dispatch => {
+    Lbryio.call('autocomplete', '').then(() => {
+      dispatch({
+        type: AUTOCOMPLETE_SEARCH_QUERY,
+        data: {
+          autocompleteList: list
+        }
+      });
+    });
+  };
+}
+function doSearchQuery() {
+  return dispatch => {
+    Lbryio.call('search', '').then(list => {
+      dispatch({
+        type: SEARCH_QUERY_RESULT,
+        data: {
+          searchQueryList: list
+        }
+      });
+    });
+  };
+}
+
 const reducers = {};
 const defaultState$1 = {
   authenticating: false
@@ -2651,6 +2689,11 @@ reducers$2[ACTIONS.ACTIONS.USER_PHONE_NEW_SUCCESS] = (state, action) => Object.a
 
 reducers$2[ACTIONS.ACTIONS.USER_PHONE_RESET] = state => Object.assign({}, state, {
   phoneToVerify: null
+});
+
+reducers$2[ACTIONS.ACTIONS.USER_REPORT_SUCCESS] = (state, action) => Object.assign({}, state, {
+  claim_id: action.data.claim_id,
+  report_type: action.data.report_type
 });
 
 reducers$2[ACTIONS.ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) => Object.assign({}, state, {
@@ -2896,6 +2939,14 @@ const homepageReducer = handleActions({
   [FETCH_TRENDING_CONTENT_STARTED]: state => ({ ...state,
     fetchingTrendingContent: true
   }),
+  [FETCH_CONTENT_CATEGORY]: (state, action) => {
+    const {
+      uris
+    } = action.data;
+    return { ...state,
+      fetchingContentCategory: uris
+    };
+  },
   [FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
     const {
       uris,
@@ -3116,6 +3167,29 @@ const historyReducer = handleActions({
   })
 }, defaultState$c);
 
+const defaultState$d = {
+  autocompleteList: {},
+  searchQueryList: {}
+};
+const searchReducer = handleActions({
+  [AUTOCOMPLETE_SEARCH_QUERY]: (state, action) => {
+    const {
+      autocompleteList
+    } = action.data;
+    return { ...state,
+      autocompleteList
+    };
+  },
+  [AUTOCOMPLETE_SEARCH_QUERY]: (state, action) => {
+    const {
+      searchQueryList
+    } = action.data;
+    return { ...state,
+      searchQueryList
+    };
+  }
+}, defaultState$d);
+
 const selectState$3 = state => state.auth || {};
 
 const selectAuthToken = reselect.createSelector(selectState$3, state => state.authToken);
@@ -3143,6 +3217,7 @@ const selectFeaturedUris = reselect.createSelector(selectState$7, state => state
 const selectFetchingFeaturedUris = reselect.createSelector(selectState$7, state => state.fetchingFeaturedContent);
 const selectTrendingUris = reselect.createSelector(selectState$7, state => state.trendingUris);
 const selectFetchingTrendingUris = reselect.createSelector(selectState$7, state => state.fetchingTrendingContent);
+const selectContentCategory = reselect.createSelector(selectState$7, state => state.fetchingContentCategory);
 
 const selectState$8 = state => state.stats || {};
 
@@ -3179,6 +3254,7 @@ exports.dislikeSelector = dislikeSelector;
 exports.doAddToHistory = doAddToHistory;
 exports.doAddToPlaylist = doAddToPlaylist;
 exports.doAuthenticate = doAuthenticate;
+exports.doAutocompleteSearchQuery = doAutocompleteSearchQuery;
 exports.doBlackListedOutpointsSubscribe = doBlackListedOutpointsSubscribe;
 exports.doChannelSubscribe = doChannelSubscribe;
 exports.doChannelSubscriptionDisableNotifications = doChannelSubscriptionDisableNotifications;
@@ -3220,6 +3296,7 @@ exports.doRemoveUnreadSubscription = doRemoveUnreadSubscription;
 exports.doRemoveUnreadSubscriptions = doRemoveUnreadSubscriptions;
 exports.doReportType = doReportType;
 exports.doRewardList = doRewardList;
+exports.doSearchQuery = doSearchQuery;
 exports.doSetDefaultAccount = doSetDefaultAccount;
 exports.doSetSync = doSetSync;
 exports.doSetViewMode = doSetViewMode;
@@ -3260,6 +3337,7 @@ exports.playlistReducer = playlistReducer;
 exports.reportReducer = reportReducer;
 exports.rewards = rewards;
 exports.rewardsReducer = rewardsReducer;
+exports.searchReducer = searchReducer;
 exports.selectAccessToken = selectAccessToken;
 exports.selectAllCostInfoByUri = selectAllCostInfoByUri;
 exports.selectAuthToken = selectAuthToken;
