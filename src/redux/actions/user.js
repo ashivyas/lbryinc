@@ -185,6 +185,36 @@ export function doUserPhoneVerify(verificationCode) {
   };
 }
 
+export function doUserMobileVerify(mobileNo, verificationCode) {
+  return dispatch => {
+    dispatch({
+      type: ACTIONS.USER_PHONE_VERIFY_STARTED,
+      code: verificationCode,
+    });
+
+    Lbryio.call(
+      'user_mobile',
+      'phone_number_confirm',
+      {
+        verification_code: verificationCode,
+        mobileNo,
+        // country_code: countryCode,
+      },
+      'post'
+    )
+      .then(user => {
+        if (user.is_identity_verified) {
+          dispatch({
+            type: ACTIONS.USER_PHONE_VERIFY_SUCCESS,
+            data: { user },
+          });
+          dispatch(doFetchFeaturedUris());
+        }
+      })
+      .catch(error => dispatch(doUserPhoneVerifyFailure(error)));
+  };
+}
+
 export function doUserLogout() {
   return dispatch => {
     Lbryio.call('user', 'logout', {}, 'post').then(data => {
@@ -197,6 +227,28 @@ export function doUserLogout() {
     });
   };
 }
+
+// eslint-disable-next-line camelcase
+export function doUserReport(report_type, report_reason, claim_id) {
+  return dispatch => {
+    Lbryio.call(
+      'app',
+      'report',
+      {
+        report_type,
+        report_reason,
+        claim_id,
+      },
+      'post'
+    ).then(data => {
+      dispatch({
+        type: ACTIONS.USER_REPORT_SUCCESS,
+        data: { data },
+      });
+    });
+  };
+}
+
 export function doUserEmailToVerify(email) {
   return dispatch => {
     dispatch({

@@ -33,6 +33,14 @@ export const homepageReducer = handleActions(
       fetchingTrendingContent: true,
     }),
 
+    [ACTIONS.FETCH_CONTENT_CATEGORY]: (state, action) => {
+      const { uris } = action.data;
+      return {
+        ...state,
+        fetchingContentCategory: uris,
+      };
+    },
+
     [ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
       const { uris, success } = action.data;
 

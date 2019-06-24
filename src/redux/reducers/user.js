@@ -79,6 +79,12 @@ reducers[ACTIONS.USER_PHONE_RESET] = state =>
     phoneToVerify: null,
   });
 
+reducers[ACTIONS.USER_REPORT_SUCCESS] = (state, action) =>
+  Object.assign({}, state, {
+    claim_id: action.data.claim_id,
+    report_type: action.data.report_type,
+  });
+
 reducers[ACTIONS.USER_PHONE_NEW_FAILURE] = (state, action) =>
   Object.assign({}, state, {
     phoneNewIsPending: false,

@@ -76,3 +76,22 @@ export function doFetchTrendingUris() {
     Lbryio.call('file', 'list_trending').then(success, failure);
   };
 }
+
+// eslint-disable-next-line camelcase
+export function doFetchCategoryContent(content_category) {
+  return dispatch => {
+    Lbryio.call(
+      'file',
+      'fetchCategoryContent',
+      {
+        content_category,
+      },
+      'post'
+    ).then(data => {
+      dispatch({
+        type: ACTIONS.FETCH_CONTENT_CATEGORY,
+        data: { uris: data },
+      });
+    });
+  };
+}

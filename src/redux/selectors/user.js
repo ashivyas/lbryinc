@@ -86,6 +86,11 @@ export const selectPhoneVerifyErrorMessage = createSelector(
   state => state.phoneVerifyErrorMessage
 );
 
+export const selectUserReport = createSelector(
+  selectState,
+  state => state.claim_id && state.report_type
+);
+
 export const selectIdentityVerifyIsPending = createSelector(
   selectState,
   state => state.identityVerifyIsPending

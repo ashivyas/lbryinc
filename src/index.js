@@ -80,6 +80,7 @@ export {
   doRemoveFromHistory,
   doRemoveAllFromHistory,
 } from 'redux/actions/history';
+export { doAutocompleteSearchQuery, doSearchQuery } from 'redux/actions/search';
 
 // reducers
 export { authReducer } from 'redux/reducers/auth';
@@ -96,6 +97,7 @@ export { playlistReducer } from 'redux/reducers/playlist';
 export { reportReducer } from 'redux/reducers/report';
 export { categoryReducer } from 'redux/reducers/category';
 export { historyReducer } from 'redux/reducers/history';
+export { searchReducer } from 'redux/reducers/search';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from 'redux/selectors/auth';

@@ -15,3 +15,8 @@ export const selectFetchingTrendingUris = createSelector(
   selectState,
   state => state.fetchingTrendingContent
 );
+
+export const selectContentCategory = createSelector(
+  selectState,
+  state => state.fetchingContentCategory
+);
