@@ -15,6 +15,11 @@ const defaultState = {
   invitees: undefined,
   user: undefined,
   usersDefaultState: [],
+  name: undefined,
+  dob: undefined,
+  gender: undefined,
+  number: undefined,
+  response: false,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = state =>
@@ -251,6 +256,33 @@ reducers[ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state =>
     inviteStatusIsPending: false,
     invitesRemaining: null,
     invitees: null,
+  });
+
+reducers[ACTIONS.USER_PROFILE_SAVE] = (state, action) =>
+  Object.assign({}, state, {
+    name: action.data.profile.name,
+    dob: action.data.profile.dob,
+    gender: action.data.profile.gender,
+    number: action.data.profile.number,
+    description: action.data.profile.description,
+  });
+
+reducers[ACTIONS.USER_PROFILE_UPDATE] = (state, action) =>
+  Object.assign({}, state, {
+    name: action.data.profile.name,
+    dob: action.data.profile.dob,
+    gender: action.data.profile.gender,
+    description: action.data.profile.description,
+  });
+
+reducers[ACTIONS.SAVE_USER_HELP] = (state, action) =>
+  Object.assign({}, state, {
+    response: action.data.success,
+  });
+
+reducers[ACTIONS.SAVE_USER_FEEDBACK] = (state, action) =>
+  Object.assign({}, state, {
+    response: action.data.success,
   });
 
 export function userReducer(state = defaultState, action) {

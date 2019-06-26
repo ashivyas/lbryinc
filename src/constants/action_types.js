@@ -112,3 +112,11 @@ export const USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS';
 
 // Category
 export const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
+
+// User Profile
+export const USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
+export const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE';
+
+// User Help &  Feedback
+export const SAVE_USER_HELP = 'SAVE_USER_HELP';
+export const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK';

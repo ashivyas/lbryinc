@@ -205,6 +205,14 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserReport", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserReport"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserProfileSave", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserProfileSave"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserProfileUpdate", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserProfileUpdate"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSaveUserHelp"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSaveUserFeedback"]; });
+
 /* harmony import */ var redux_actions_report__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(22);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doReportType", function() { return redux_actions_report__WEBPACK_IMPORTED_MODULE_8__["doReportType"]; });
 
@@ -450,6 +458,14 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectUserReport", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectUserReport"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectSavedUserData", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectSavedUserData"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectUpdatedUserData", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectUpdatedUserData"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectHelpResponse", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectHelpResponse"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectFeedbackResponse", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectFeedbackResponse"]; });
+
 /* harmony import */ var redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(47);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "likeSelector", function() { return redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__["likeSelector"]; });
 
@@ -656,6 +672,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SEARCH_QUERY_RESULT", function() { return SEARCH_QUERY_RESULT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_REPORT_SUCCESS", function() { return USER_REPORT_SUCCESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_CONTENT_CATEGORY", function() { return FETCH_CONTENT_CATEGORY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_SAVE", function() { return USER_PROFILE_SAVE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_UPDATE", function() { return USER_PROFILE_UPDATE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_HELP", function() { return SAVE_USER_HELP; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_FEEDBACK", function() { return SAVE_USER_FEEDBACK; });
 // Auth Token
 var GENERATE_AUTH_TOKEN_FAILURE = 'GENERATE_AUTH_TOKEN_FAILURE';
 var GENERATE_AUTH_TOKEN_STARTED = 'GENERATE_AUTH_TOKEN_STARTED';
@@ -754,7 +774,13 @@ var SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
 
 var USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
-var FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
+var FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY'; // User Profile
+
+var USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
+var USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
+
+var SAVE_USER_HELP = 'SAVE_USER_HELP';
+var SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK';
 
 /***/ }),
 /* 2 */
@@ -2038,6 +2064,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserInviteNewIsPending", function() { return selectUserInviteNewIsPending; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserInviteNewErrorMessage", function() { return selectUserInviteNewErrorMessage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserInviteReferralLink", function() { return selectUserInviteReferralLink; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectSavedUserData", function() { return selectSavedUserData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUpdatedUserData", function() { return selectUpdatedUserData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectHelpResponse", function() { return selectHelpResponse; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFeedbackResponse", function() { return selectFeedbackResponse; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(reselect__WEBPACK_IMPORTED_MODULE_0__);
 
@@ -2147,6 +2177,18 @@ var selectUserInviteNewErrorMessage = Object(reselect__WEBPACK_IMPORTED_MODULE_0
 var selectUserInviteReferralLink = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.referralLink;
 });
+var selectSavedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.name && state.dob && state.gender && state.description && state.number;
+});
+var selectUpdatedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.name && state.dob && state.gender && state.description;
+});
+var selectHelpResponse = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.response;
+});
+var selectFeedbackResponse = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.response;
+});
 
 /***/ }),
 /* 16 */
@@ -2176,6 +2218,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserIdentityVerify", function() { return doUserIdentityVerify; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserInviteNew", function() { return doUserInviteNew; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserCheckId", function() { return doUserCheckId; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileSave", function() { return doUserProfileSave; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileUpdate", function() { return doUserProfileUpdate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return doSaveUserHelp; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return doSaveUserFeedback; });
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lbry_redux__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var redux_actions_rewards__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
@@ -2669,6 +2715,74 @@ function doUserCheckId(input) {
       } else throw new Error('Your email or mobile check gone wrong in Api');
     })["catch"](function (error) {
       throw new Error('User receiving Error ', error);
+    });
+  };
+}
+function doUserProfileSave(name, dob, number, gender, description) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user', 'profile_save', {
+      name: name,
+      dob: dob,
+      number: number,
+      gender: gender,
+      description: description
+    }, 'post').then(function (userData) {
+      dispatch({
+        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_SAVE,
+        data: userData.data
+      });
+    });
+  };
+}
+function doUserProfileUpdate(name, dob, gender, description) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user', 'profile_update', {
+      name: name,
+      dob: dob,
+      gender: gender,
+      description: description
+    }, 'post').then(function (userData) {
+      dispatch({
+        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_UPDATE,
+        data: userData.data
+      });
+    });
+  };
+}
+function doSaveUserHelp(issue, message) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('helpandfeedback', 'help', {
+      issue: issue,
+      message: message
+    }, 'post').then(function (response) {
+      dispatch({
+        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_HELP,
+        data: response
+      });
+    });
+  };
+}
+function doSaveUserFeedback(value1, value2, value3, value4) {
+  var feedbackObj = {
+    param1: {
+      value: value1
+    },
+    param2: {
+      value: value2
+    },
+    param3: {
+      value: value3
+    },
+    param4: {
+      value: value4
+    }
+  };
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('helpandfeedback', 'feedback', feedbackObj, 'post').then(function (response) {
+      dispatch({
+        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_FEEDBACK,
+        data: response
+      });
     });
   };
 }
@@ -4385,7 +4499,12 @@ var defaultState = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: []
+  usersDefaultState: [],
+  name: undefined,
+  dob: undefined,
+  gender: undefined,
+  number: undefined,
+  response: false
 };
 
 reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].AUTHENTICATION_STARTED] = function (state) {
@@ -4651,6 +4770,37 @@ reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_INVITE_STATUS_F
     inviteStatusIsPending: false,
     invitesRemaining: null,
     invitees: null
+  });
+};
+
+reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_SAVE] = function (state, action) {
+  return Object.assign({}, state, {
+    name: action.data.profile.name,
+    dob: action.data.profile.dob,
+    gender: action.data.profile.gender,
+    number: action.data.profile.number,
+    description: action.data.profile.description
+  });
+};
+
+reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_UPDATE] = function (state, action) {
+  return Object.assign({}, state, {
+    name: action.data.profile.name,
+    dob: action.data.profile.dob,
+    gender: action.data.profile.gender,
+    description: action.data.profile.description
+  });
+};
+
+reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_HELP] = function (state, action) {
+  return Object.assign({}, state, {
+    response: action.data.success
+  });
+};
+
+reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_FEEDBACK] = function (state, action) {
+  return Object.assign({}, state, {
+    response: action.data.success
   });
 };
 

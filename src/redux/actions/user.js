@@ -477,3 +477,65 @@ export function doUserCheckId(input) {
       });
   };
 }
+
+export function doUserProfileSave(name, dob, number, gender, description) {
+  return dispatch => {
+    Lbryio.call('user', 'profile_save', { name, dob, number, gender, description }, 'post').then(
+      userData => {
+        dispatch({
+          type: ACTIONS.USER_PROFILE_SAVE,
+          data: userData.data,
+        });
+      }
+    );
+  };
+}
+
+export function doUserProfileUpdate(name, dob, gender, description) {
+  return dispatch => {
+    Lbryio.call('user', 'profile_update', { name, dob, gender, description }, 'post').then(
+      userData => {
+        dispatch({
+          type: ACTIONS.USER_PROFILE_UPDATE,
+          data: userData.data,
+        });
+      }
+    );
+  };
+}
+
+export function doSaveUserHelp(issue, message) {
+  return dispatch => {
+    Lbryio.call('helpandfeedback', 'help', { issue, message }, 'post').then(response => {
+      dispatch({
+        type: ACTIONS.SAVE_USER_HELP,
+        data: response,
+      });
+    });
+  };
+}
+
+export function doSaveUserFeedback(value1, value2, value3, value4) {
+  const feedbackObj = {
+    param1: {
+      value: value1,
+    },
+    param2: {
+      value: value2,
+    },
+    param3: {
+      value: value3,
+    },
+    param4: {
+      value: value4,
+    },
+  };
+  return dispatch => {
+    Lbryio.call('helpandfeedback', 'feedback', feedbackObj, 'post').then(response => {
+      dispatch({
+        type: ACTIONS.SAVE_USER_FEEDBACK,
+        data: response,
+      });
+    });
+  };
+}

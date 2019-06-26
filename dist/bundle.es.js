@@ -106,7 +106,13 @@ const SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
 
 const USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
-const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
+const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY'; // User Profile
+
+const USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
+const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
+
+const SAVE_USER_HELP = 'SAVE_USER_HELP';
+const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -192,7 +198,11 @@ var action_types = /*#__PURE__*/Object.freeze({
   AUTOCOMPLETE_SEARCH_QUERY: AUTOCOMPLETE_SEARCH_QUERY,
   SEARCH_QUERY_RESULT: SEARCH_QUERY_RESULT,
   USER_REPORT_SUCCESS: USER_REPORT_SUCCESS,
-  FETCH_CONTENT_CATEGORY: FETCH_CONTENT_CATEGORY
+  FETCH_CONTENT_CATEGORY: FETCH_CONTENT_CATEGORY,
+  USER_PROFILE_SAVE: USER_PROFILE_SAVE,
+  USER_PROFILE_UPDATE: USER_PROFILE_UPDATE,
+  SAVE_USER_HELP: SAVE_USER_HELP,
+  SAVE_USER_FEEDBACK: SAVE_USER_FEEDBACK
 });
 
 const Lbryio = {
@@ -778,6 +788,10 @@ const selectUserInviteStatusFailed = reselect.createSelector(selectUserInvitesRe
 const selectUserInviteNewIsPending = reselect.createSelector(selectState$1, state => state.inviteNewIsPending);
 const selectUserInviteNewErrorMessage = reselect.createSelector(selectState$1, state => state.inviteNewErrorMessage);
 const selectUserInviteReferralLink = reselect.createSelector(selectState$1, state => state.referralLink);
+const selectSavedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description && state.number);
+const selectUpdatedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description);
+const selectHelpResponse = reselect.createSelector(selectState$1, state => state.response);
+const selectFeedbackResponse = reselect.createSelector(selectState$1, state => state.response);
 
 function doFetchFeaturedUris(offloadResolve = false) {
   return dispatch => {
@@ -1326,6 +1340,74 @@ function doUserCheckId(input) {
       } else throw new Error('Your email or mobile check gone wrong in Api');
     }).catch(error => {
       throw new Error('User receiving Error ', error);
+    });
+  };
+}
+function doUserProfileSave(name, dob, number, gender, description) {
+  return dispatch => {
+    Lbryio.call('user', 'profile_save', {
+      name,
+      dob,
+      number,
+      gender,
+      description
+    }, 'post').then(userData => {
+      dispatch({
+        type: ACTIONS.ACTIONS.USER_PROFILE_SAVE,
+        data: userData.data
+      });
+    });
+  };
+}
+function doUserProfileUpdate(name, dob, gender, description) {
+  return dispatch => {
+    Lbryio.call('user', 'profile_update', {
+      name,
+      dob,
+      gender,
+      description
+    }, 'post').then(userData => {
+      dispatch({
+        type: ACTIONS.ACTIONS.USER_PROFILE_UPDATE,
+        data: userData.data
+      });
+    });
+  };
+}
+function doSaveUserHelp(issue, message) {
+  return dispatch => {
+    Lbryio.call('helpandfeedback', 'help', {
+      issue,
+      message
+    }, 'post').then(response => {
+      dispatch({
+        type: ACTIONS.ACTIONS.SAVE_USER_HELP,
+        data: response
+      });
+    });
+  };
+}
+function doSaveUserFeedback(value1, value2, value3, value4) {
+  let feedbackObj = {
+    param1: {
+      value: value1
+    },
+    param2: {
+      value: value2
+    },
+    param3: {
+      value: value3
+    },
+    param4: {
+      value: value4
+    }
+  };
+  return dispatch => {
+    Lbryio.call('helpandfeedback', 'feedback', feedbackObj, 'post').then(response => {
+      dispatch({
+        type: ACTIONS.ACTIONS.SAVE_USER_FEEDBACK,
+        data: response
+      });
     });
   };
 }
@@ -2689,7 +2771,12 @@ const defaultState$3 = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: []
+  usersDefaultState: [],
+  name: undefined,
+  dob: undefined,
+  gender: undefined,
+  number: undefined,
+  response: false
 };
 
 reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
@@ -2896,6 +2983,29 @@ reducers$2[ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state => Object.a
   inviteStatusIsPending: false,
   invitesRemaining: null,
   invitees: null
+});
+
+reducers$2[ACTIONS.ACTIONS.USER_PROFILE_SAVE] = (state, action) => Object.assign({}, state, {
+  name: action.data.profile.name,
+  dob: action.data.profile.dob,
+  gender: action.data.profile.gender,
+  number: action.data.profile.number,
+  description: action.data.profile.description
+});
+
+reducers$2[ACTIONS.ACTIONS.USER_PROFILE_UPDATE] = (state, action) => Object.assign({}, state, {
+  name: action.data.profile.name,
+  dob: action.data.profile.dob,
+  gender: action.data.profile.gender,
+  description: action.data.profile.description
+});
+
+reducers$2[ACTIONS.ACTIONS.SAVE_USER_HELP] = (state, action) => Object.assign({}, state, {
+  response: action.data.success
+});
+
+reducers$2[ACTIONS.ACTIONS.SAVE_USER_FEEDBACK] = (state, action) => Object.assign({}, state, {
+  response: action.data.success
 });
 
 function userReducer(state = defaultState$3, action) {
@@ -3352,6 +3462,8 @@ exports.doRemoveUnreadSubscription = doRemoveUnreadSubscription;
 exports.doRemoveUnreadSubscriptions = doRemoveUnreadSubscriptions;
 exports.doReportType = doReportType;
 exports.doRewardList = doRewardList;
+exports.doSaveUserFeedback = doSaveUserFeedback;
+exports.doSaveUserHelp = doSaveUserHelp;
 exports.doSearchQuery = doSearchQuery;
 exports.doSetDefaultAccount = doSetDefaultAccount;
 exports.doSetSync = doSetSync;
@@ -3374,6 +3486,8 @@ exports.doUserPhoneNew = doUserPhoneNew;
 exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
 exports.doUserPhoneVerifyFailure = doUserPhoneVerifyFailure;
+exports.doUserProfileSave = doUserProfileSave;
+exports.doUserProfileUpdate = doUserProfileUpdate;
 exports.doUserReport = doUserReport;
 exports.doUserResendVerificationEmail = doUserResendVerificationEmail;
 exports.historyReducer = historyReducer;
@@ -3415,12 +3529,14 @@ exports.selectEmailVerifyErrorMessage = selectEmailVerifyErrorMessage;
 exports.selectEmailVerifyIsPending = selectEmailVerifyIsPending;
 exports.selectEnabledChannelNotifications = selectEnabledChannelNotifications;
 exports.selectFeaturedUris = selectFeaturedUris;
+exports.selectFeedbackResponse = selectFeedbackResponse;
 exports.selectFetchingCostInfo = selectFetchingCostInfo;
 exports.selectFetchingFeaturedUris = selectFetchingFeaturedUris;
 exports.selectFetchingRewards = selectFetchingRewards;
 exports.selectFetchingTrendingUris = selectFetchingTrendingUris;
 exports.selectFirstRunCompleted = selectFirstRunCompleted;
 exports.selectHasSyncedWallet = selectHasSyncedWallet;
+exports.selectHelpResponse = selectHelpResponse;
 exports.selectHistoryList = selectHistoryList;
 exports.selectIdentityVerifyErrorMessage = selectIdentityVerifyErrorMessage;
 exports.selectIdentityVerifyIsPending = selectIdentityVerifyIsPending;
@@ -3439,6 +3555,7 @@ exports.selectPlaylistName = selectPlaylistName;
 exports.selectPlaylistUris = selectPlaylistUris;
 exports.selectReferralReward = selectReferralReward;
 exports.selectRewardContentClaimIds = selectRewardContentClaimIds;
+exports.selectSavedUserData = selectSavedUserData;
 exports.selectSetSyncErrorMessage = selectSetSyncErrorMessage;
 exports.selectShowSuggestedSubs = selectShowSuggestedSubs;
 exports.selectSubscriptionClaims = selectSubscriptionClaims;
@@ -3455,6 +3572,7 @@ exports.selectUnclaimedRewardsByType = selectUnclaimedRewardsByType;
 exports.selectUnreadAmount = selectUnreadAmount;
 exports.selectUnreadByChannel = selectUnreadByChannel;
 exports.selectUnreadSubscriptions = selectUnreadSubscriptions;
+exports.selectUpdatedUserData = selectUpdatedUserData;
 exports.selectUser = selectUser;
 exports.selectUserCheckId = selectUserCheckId;
 exports.selectUserCheckType = selectUserCheckType;
