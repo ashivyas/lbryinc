@@ -15,11 +15,6 @@ const defaultState = {
   invitees: undefined,
   user: undefined,
   usersDefaultState: [],
-  name: undefined,
-  dob: undefined,
-  gender: undefined,
-  number: undefined,
-  response: false,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = state =>

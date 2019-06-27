@@ -7,9 +7,14 @@ const defaultState = {
 
 export const historyReducer = handleActions(
   {
+    /*eslint-disable */
+
+    //suppress all warnings between comments
+    // eslint-disable-next-line no-use-before-define
     [ACTIONS.ADD_TO_HISTORY]: (state, action) => ({
       ...state,
     }),
+    /* eslint-enable */
     [ACTIONS.FETCH_HISTORY]: (state, action) => {
       const { historyList } = action.data;
 
@@ -18,12 +23,20 @@ export const historyReducer = handleActions(
         historyList,
       };
     },
-    [ACTIONS.DELETE_HISTORY]: (state, action) => ({
-      ...state,
-    }),
-    [ACTIONS.DELETE_ALL_HISTORY]: (state, action) => ({
-      ...state,
-    }),
+    [ACTIONS.DELETE_HISTORY]: (state, action) => {
+      const { claimId } = action.data;
+      return {
+        ...state,
+        claimId,
+      };
+    },
+    [ACTIONS.DELETE_ALL_HISTORY]: (state, action) => {
+      const { data } = action.data;
+      return {
+        ...state,
+        data,
+      };
+    },
   },
   defaultState
 );

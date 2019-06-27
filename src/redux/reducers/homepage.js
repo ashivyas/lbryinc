@@ -41,6 +41,30 @@ export const homepageReducer = handleActions(
       };
     },
 
+    [ACTIONS.FETCH_RECENT_LIST]: (state, action) => {
+      const { data } = action.data;
+      return {
+        ...state,
+        fetchingRecentList: data,
+      };
+    },
+
+    [ACTIONS.FETCH_NOT_INTERESTED_LIST]: (state, action) => {
+      const { data } = action.data;
+      return {
+        ...state,
+        fetchingNotInterestedList: data,
+      };
+    },
+
+    [ACTIONS.NOT_INTERESTED_CONTENT]: (state, action) => {
+      const { data } = action.data.claim_id;
+      return {
+        ...state,
+        notInterestedContent: data,
+      };
+    },
+
     [ACTIONS.FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
       const { uris, success } = action.data;
 

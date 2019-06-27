@@ -232,7 +232,7 @@ export function doUserLogout() {
 export function doUserReport(report_type, report_reason, claim_id) {
   return dispatch => {
     Lbryio.call(
-      'app',
+      'api',
       'report',
       {
         report_type,

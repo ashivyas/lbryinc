@@ -72,6 +72,9 @@ export {
   doFetchFeaturedUris,
   doFetchTrendingUris,
   doFetchContentCategory,
+  doFetchRecentList,
+  doFetchNotInterestedList,
+  doNotInterested,
 } from 'redux/actions/homepage';
 export { doFetchViewCount, doRegView } from 'redux/actions/stats';
 export { doGetSync, doSetSync, doSetDefaultAccount } from 'redux/actions/sync';
@@ -207,6 +210,9 @@ export {
   selectTrendingUris,
   selectFetchingTrendingUris,
   selectContentCategory,
+  selectRecentList,
+  selectNotInterestedList,
+  selectNotInterested,
 } from 'redux/selectors/homepage';
 export { makeSelectViewCountForUri, selectViewCount } from 'redux/selectors/stats';
 export { selectPlaylistName, selectPlaylistUris } from 'redux/selectors/playlist';

@@ -229,6 +229,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doFetchContentCategory", function() { return redux_actions_homepage__WEBPACK_IMPORTED_MODULE_11__["doFetchContentCategory"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doFetchRecentList", function() { return redux_actions_homepage__WEBPACK_IMPORTED_MODULE_11__["doFetchRecentList"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doFetchNotInterestedList", function() { return redux_actions_homepage__WEBPACK_IMPORTED_MODULE_11__["doFetchNotInterestedList"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doNotInterested", function() { return redux_actions_homepage__WEBPACK_IMPORTED_MODULE_11__["doNotInterested"]; });
+
 /* harmony import */ var redux_actions_stats__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(25);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doFetchViewCount", function() { return redux_actions_stats__WEBPACK_IMPORTED_MODULE_12__["doFetchViewCount"]; });
 
@@ -500,6 +506,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectContentCategory", function() { return redux_selectors_homepage__WEBPACK_IMPORTED_MODULE_40__["selectContentCategory"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectRecentList", function() { return redux_selectors_homepage__WEBPACK_IMPORTED_MODULE_40__["selectRecentList"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectNotInterestedList", function() { return redux_selectors_homepage__WEBPACK_IMPORTED_MODULE_40__["selectNotInterestedList"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectNotInterested", function() { return redux_selectors_homepage__WEBPACK_IMPORTED_MODULE_40__["selectNotInterested"]; });
+
 /* harmony import */ var redux_selectors_stats__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(51);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "makeSelectViewCountForUri", function() { return redux_selectors_stats__WEBPACK_IMPORTED_MODULE_41__["makeSelectViewCountForUri"]; });
 
@@ -672,10 +684,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SEARCH_QUERY_RESULT", function() { return SEARCH_QUERY_RESULT; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_REPORT_SUCCESS", function() { return USER_REPORT_SUCCESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_CONTENT_CATEGORY", function() { return FETCH_CONTENT_CATEGORY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_RECENT_LIST", function() { return FETCH_RECENT_LIST; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_SAVE", function() { return USER_PROFILE_SAVE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_UPDATE", function() { return USER_PROFILE_UPDATE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_HELP", function() { return SAVE_USER_HELP; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_FEEDBACK", function() { return SAVE_USER_FEEDBACK; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_NOT_INTERESTED_LIST", function() { return FETCH_NOT_INTERESTED_LIST; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NOT_INTERESTED_CONTENT", function() { return NOT_INTERESTED_CONTENT; });
 // Auth Token
 var GENERATE_AUTH_TOKEN_FAILURE = 'GENERATE_AUTH_TOKEN_FAILURE';
 var GENERATE_AUTH_TOKEN_STARTED = 'GENERATE_AUTH_TOKEN_STARTED';
@@ -774,13 +789,17 @@ var SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
 
 var USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
-var FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY'; // User Profile
+var FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
+var FETCH_RECENT_LIST = 'FETCH_RECENT_LIST'; // User Profile
 
 var USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
 var USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
 
 var SAVE_USER_HELP = 'SAVE_USER_HELP';
-var SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK';
+var SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
+
+var FETCH_NOT_INTERESTED_LIST = 'FETCH_NOT_INTERESTED_LIST';
+var NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT';
 
 /***/ }),
 /* 2 */
@@ -2465,7 +2484,7 @@ function doUserLogout() {
 
 function doUserReport(report_type, report_reason, claim_id) {
   return function (dispatch) {
-    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('app', 'report', {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('api', 'report', {
       report_type: report_type,
       report_reason: report_reason,
       claim_id: claim_id
@@ -2796,6 +2815,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFetchFeaturedUris", function() { return doFetchFeaturedUris; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFetchTrendingUris", function() { return doFetchTrendingUris; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFetchContentCategory", function() { return doFetchContentCategory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFetchRecentList", function() { return doFetchRecentList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFetchNotInterestedList", function() { return doFetchNotInterestedList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doNotInterested", function() { return doNotInterested; });
 /* harmony import */ var lbryio__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(2);
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(3);
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lbry_redux__WEBPACK_IMPORTED_MODULE_1__);
@@ -2894,6 +2916,39 @@ function doFetchContentCategory(content_category) {
         data: {
           uris: data
         }
+      });
+    });
+  };
+}
+function doFetchRecentList() {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('file', 'recent_list').then(function (data) {
+      dispatch({
+        type: constants_action_types__WEBPACK_IMPORTED_MODULE_2__["FETCH_RECENT_LIST"],
+        data: data
+      });
+    });
+  };
+}
+function doFetchNotInterestedList() {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('file', 'not_interested_list').then(function (data) {
+      dispatch({
+        type: constants_action_types__WEBPACK_IMPORTED_MODULE_2__["FETCH_NOT_INTERESTED_LIST"],
+        data: data
+      });
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doNotInterested(claim_id) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('file', 'not_interested', {
+      claim_id: claim_id
+    }, 'post').then(function (data) {
+      dispatch({
+        type: constants_action_types__WEBPACK_IMPORTED_MODULE_2__["NOT_INTERESTED_CONTENT"],
+        data: data
       });
     });
   };
@@ -4249,18 +4304,20 @@ function doRemoveFromHistory(claimId) {
   return function (dispatch) {
     lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('history', 'delete', {
       claim_id: claimId
-    }, 'post').then(function () {
+    }, 'post').then(function (data) {
       dispatch({
-        type: constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_HISTORY"]
+        type: constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_HISTORY"],
+        data: data
       });
     });
   };
 }
 function doRemoveAllFromHistory() {
   return function (dispatch) {
-    lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('history', 'delete_all', {}, 'post').then(function () {
+    lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('history', 'delete_all').then(function (data) {
       dispatch({
-        type: constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_ALL_HISTORY"]
+        type: constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_ALL_HISTORY"],
+        data: data
       });
     });
   };
@@ -4499,12 +4556,7 @@ var defaultState = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: [],
-  name: undefined,
-  dob: undefined,
-  gender: undefined,
-  number: undefined,
-  response: false
+  usersDefaultState: []
 };
 
 reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].AUTHENTICATION_STARTED] = function (state) {
@@ -4947,6 +4999,21 @@ var homepageReducer = Object(util_redux_utils__WEBPACK_IMPORTED_MODULE_0__["hand
   return _objectSpread({}, state, {
     fetchingContentCategory: uris
   });
+}), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["FETCH_RECENT_LIST"], function (state, action) {
+  var data = action.data.data;
+  return _objectSpread({}, state, {
+    fetchingRecentList: data
+  });
+}), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["FETCH_NOT_INTERESTED_LIST"], function (state, action) {
+  var data = action.data.data;
+  return _objectSpread({}, state, {
+    fetchingNotInterestedList: data
+  });
+}), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["NOT_INTERESTED_CONTENT"], function (state, action) {
+  var data = action.data.claim_id.data;
+  return _objectSpread({}, state, {
+    notInterestedContent: data
+  });
 }), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["FETCH_TRENDING_CONTENT_COMPLETED"], function (state, action) {
   var _action$data2 = action.data,
       uris = _action$data2.uris,
@@ -5238,9 +5305,15 @@ var historyReducer = Object(util_redux_utils__WEBPACK_IMPORTED_MODULE_0__["handl
     historyList: historyList
   });
 }), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_HISTORY"], function (state, action) {
-  return _objectSpread({}, state);
+  var claim_id = action.data.claim_id;
+  return _objectSpread({}, state, {
+    claim_id: claim_id
+  });
 }), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_ALL_HISTORY"], function (state, action) {
-  return _objectSpread({}, state);
+  var data = action.data.data;
+  return _objectSpread({}, state, {
+    data: data
+  });
 }), _handleActions), defaultState);
 
 /***/ }),
@@ -5396,6 +5469,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectTrendingUris", function() { return selectTrendingUris; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFetchingTrendingUris", function() { return selectFetchingTrendingUris; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectContentCategory", function() { return selectContentCategory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectRecentList", function() { return selectRecentList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNotInterestedList", function() { return selectNotInterestedList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectNotInterested", function() { return selectNotInterested; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(reselect__WEBPACK_IMPORTED_MODULE_0__);
 
@@ -5418,6 +5494,15 @@ var selectFetchingTrendingUris = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["c
 });
 var selectContentCategory = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.fetchingContentCategory;
+});
+var selectRecentList = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.fetchingRecentList;
+});
+var selectNotInterestedList = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.fetchingNotInterestedList;
+});
+var selectNotInterested = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.notInterestedContent;
 });
 
 /***/ }),

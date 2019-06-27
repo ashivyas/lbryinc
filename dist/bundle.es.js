@@ -106,13 +106,17 @@ const SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
 
 const USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
-const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY'; // User Profile
+const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
+const FETCH_RECENT_LIST = 'FETCH_RECENT_LIST'; // User Profile
 
 const USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
 const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
 
 const SAVE_USER_HELP = 'SAVE_USER_HELP';
-const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK';
+const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
+
+const FETCH_NOT_INTERESTED_LIST = 'FETCH_NOT_INTERESTED_LIST';
+const NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -199,10 +203,13 @@ var action_types = /*#__PURE__*/Object.freeze({
   SEARCH_QUERY_RESULT: SEARCH_QUERY_RESULT,
   USER_REPORT_SUCCESS: USER_REPORT_SUCCESS,
   FETCH_CONTENT_CATEGORY: FETCH_CONTENT_CATEGORY,
+  FETCH_RECENT_LIST: FETCH_RECENT_LIST,
   USER_PROFILE_SAVE: USER_PROFILE_SAVE,
   USER_PROFILE_UPDATE: USER_PROFILE_UPDATE,
   SAVE_USER_HELP: SAVE_USER_HELP,
-  SAVE_USER_FEEDBACK: SAVE_USER_FEEDBACK
+  SAVE_USER_FEEDBACK: SAVE_USER_FEEDBACK,
+  FETCH_NOT_INTERESTED_LIST: FETCH_NOT_INTERESTED_LIST,
+  NOT_INTERESTED_CONTENT: NOT_INTERESTED_CONTENT
 });
 
 const Lbryio = {
@@ -878,6 +885,39 @@ function doFetchContentCategory(content_category) {
     });
   };
 }
+function doFetchRecentList() {
+  return dispatch => {
+    Lbryio.call('file', 'recent_list').then(data => {
+      dispatch({
+        type: FETCH_RECENT_LIST,
+        data
+      });
+    });
+  };
+}
+function doFetchNotInterestedList() {
+  return dispatch => {
+    Lbryio.call('file', 'not_interested_list').then(data => {
+      dispatch({
+        type: FETCH_NOT_INTERESTED_LIST,
+        data
+      });
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doNotInterested(claim_id) {
+  return dispatch => {
+    Lbryio.call('file', 'not_interested', {
+      claim_id
+    }, 'post').then(data => {
+      dispatch({
+        type: NOT_INTERESTED_CONTENT,
+        data
+      });
+    });
+  };
+}
 
 function doFetchInviteStatus() {
   return dispatch => {
@@ -1094,7 +1134,7 @@ function doUserLogout() {
 
 function doUserReport(report_type, report_reason, claim_id) {
   return dispatch => {
-    Lbryio.call('app', 'report', {
+    Lbryio.call('api', 'report', {
       report_type,
       report_reason,
       claim_id
@@ -1388,7 +1428,7 @@ function doSaveUserHelp(issue, message) {
   };
 }
 function doSaveUserFeedback(value1, value2, value3, value4) {
-  let feedbackObj = {
+  const feedbackObj = {
     param1: {
       value: value1
     },
@@ -2574,18 +2614,20 @@ function doRemoveFromHistory(claimId) {
   return dispatch => {
     Lbryio.call('history', 'delete', {
       claim_id: claimId
-    }, 'post').then(() => {
+    }, 'post').then(data => {
       dispatch({
-        type: DELETE_HISTORY
+        type: DELETE_HISTORY,
+        data
       });
     });
   };
 }
 function doRemoveAllFromHistory() {
   return dispatch => {
-    Lbryio.call('history', 'delete_all', {}, 'post').then(() => {
+    Lbryio.call('history', 'delete_all').then(data => {
       dispatch({
-        type: DELETE_ALL_HISTORY
+        type: DELETE_ALL_HISTORY,
+        data
       });
     });
   };
@@ -2771,12 +2813,7 @@ const defaultState$3 = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: [],
-  name: undefined,
-  dob: undefined,
-  gender: undefined,
-  number: undefined,
-  response: false
+  usersDefaultState: []
 };
 
 reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
@@ -3112,6 +3149,30 @@ const homepageReducer = handleActions({
       fetchingContentCategory: uris
     };
   },
+  [FETCH_RECENT_LIST]: (state, action) => {
+    const {
+      data
+    } = action.data;
+    return { ...state,
+      fetchingRecentList: data
+    };
+  },
+  [FETCH_NOT_INTERESTED_LIST]: (state, action) => {
+    const {
+      data
+    } = action.data;
+    return { ...state,
+      fetchingNotInterestedList: data
+    };
+  },
+  [NOT_INTERESTED_CONTENT]: (state, action) => {
+    const {
+      data
+    } = action.data.claim_id;
+    return { ...state,
+      notInterestedContent: data
+    };
+  },
   [FETCH_TRENDING_CONTENT_COMPLETED]: (state, action) => {
     const {
       uris,
@@ -3326,10 +3387,22 @@ const historyReducer = handleActions({
       historyList
     };
   },
-  [DELETE_HISTORY]: (state, action) => ({ ...state
-  }),
-  [DELETE_ALL_HISTORY]: (state, action) => ({ ...state
-  })
+  [DELETE_HISTORY]: (state, action) => {
+    const {
+      claim_id
+    } = action.data;
+    return { ...state,
+      claim_id
+    };
+  },
+  [DELETE_ALL_HISTORY]: (state, action) => {
+    const {
+      data
+    } = action.data;
+    return { ...state,
+      data
+    };
+  }
 }, defaultState$c);
 
 const defaultState$d = {
@@ -3383,6 +3456,9 @@ const selectFetchingFeaturedUris = reselect.createSelector(selectState$7, state 
 const selectTrendingUris = reselect.createSelector(selectState$7, state => state.trendingUris);
 const selectFetchingTrendingUris = reselect.createSelector(selectState$7, state => state.fetchingTrendingContent);
 const selectContentCategory = reselect.createSelector(selectState$7, state => state.fetchingContentCategory);
+const selectRecentList = reselect.createSelector(selectState$7, state => state.fetchingRecentList);
+const selectNotInterestedList = reselect.createSelector(selectState$7, state => state.fetchingNotInterestedList);
+const selectNotInterested = reselect.createSelector(selectState$7, state => state.notInterestedContent);
 
 const selectState$8 = state => state.stats || {};
 
@@ -3443,7 +3519,9 @@ exports.doFetchHistoryList = doFetchHistoryList;
 exports.doFetchInviteStatus = doFetchInviteStatus;
 exports.doFetchLikedList = doFetchLikedList;
 exports.doFetchMySubscriptions = doFetchMySubscriptions;
+exports.doFetchNotInterestedList = doFetchNotInterestedList;
 exports.doFetchPlaylist = doFetchPlaylist;
+exports.doFetchRecentList = doFetchRecentList;
 exports.doFetchRecommendedSubscriptions = doFetchRecommendedSubscriptions;
 exports.doFetchRewardedContent = doFetchRewardedContent;
 exports.doFetchTrendingUris = doFetchTrendingUris;
@@ -3454,6 +3532,7 @@ exports.doInstallNew = doInstallNew;
 exports.doLikeCheck = doLikeCheck;
 exports.doLikeCount = doLikeCount;
 exports.doLikeOnClick = doLikeOnClick;
+exports.doNotInterested = doNotInterested;
 exports.doRegView = doRegView;
 exports.doRemoveAllFromHistory = doRemoveAllFromHistory;
 exports.doRemoveFromHistory = doRemoveFromHistory;
@@ -3546,6 +3625,8 @@ exports.selectIsFetchingSuggested = selectIsFetchingSuggested;
 exports.selectIsRetrievingSync = selectIsRetrievingSync;
 exports.selectIsSettingSync = selectIsSettingSync;
 exports.selectLikedList = selectLikedList;
+exports.selectNotInterested = selectNotInterested;
+exports.selectNotInterestedList = selectNotInterestedList;
 exports.selectPhoneNewErrorMessage = selectPhoneNewErrorMessage;
 exports.selectPhoneNewIsPending = selectPhoneNewIsPending;
 exports.selectPhoneToVerify = selectPhoneToVerify;
@@ -3553,6 +3634,7 @@ exports.selectPhoneVerifyErrorMessage = selectPhoneVerifyErrorMessage;
 exports.selectPhoneVerifyIsPending = selectPhoneVerifyIsPending;
 exports.selectPlaylistName = selectPlaylistName;
 exports.selectPlaylistUris = selectPlaylistUris;
+exports.selectRecentList = selectRecentList;
 exports.selectReferralReward = selectReferralReward;
 exports.selectRewardContentClaimIds = selectRewardContentClaimIds;
 exports.selectSavedUserData = selectSavedUserData;

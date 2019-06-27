@@ -95,3 +95,37 @@ export function doFetchContentCategory(content_category) {
     });
   };
 }
+
+export function doFetchRecentList() {
+  return dispatch => {
+    Lbryio.call('file', 'recent_list').then(data => {
+      dispatch({
+        type: ACTIONS.FETCH_RECENT_LIST,
+        data,
+      });
+    });
+  };
+}
+
+export function doFetchNotInterestedList() {
+  return dispatch => {
+    Lbryio.call('file', 'not_interested_list').then(data => {
+      dispatch({
+        type: ACTIONS.FETCH_NOT_INTERESTED_LIST,
+        data,
+      });
+    });
+  };
+}
+
+// eslint-disable-next-line camelcase
+export function doNotInterested(claim_id) {
+  return dispatch => {
+    Lbryio.call('file', 'not_interested', { claim_id }, 'post').then(data => {
+      dispatch({
+        type: ACTIONS.NOT_INTERESTED_CONTENT,
+        data,
+      });
+    });
+  };
+}

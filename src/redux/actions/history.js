@@ -27,9 +27,10 @@ export function doFetchHistoryList() {
 
 export function doRemoveFromHistory(claimId) {
   return dispatch => {
-    Lbryio.call('history', 'delete', { claim_id: claimId }, 'post').then(() => {
+    Lbryio.call('history', 'delete', { claim_id: claimId }, 'post').then(data => {
       dispatch({
         type: ACTIONS.DELETE_HISTORY,
+        data,
       });
     });
   };
@@ -37,9 +38,10 @@ export function doRemoveFromHistory(claimId) {
 
 export function doRemoveAllFromHistory() {
   return dispatch => {
-    Lbryio.call('history', 'delete_all', {}, 'post').then(() => {
+    Lbryio.call('history', 'delete_all').then(data => {
       dispatch({
         type: ACTIONS.DELETE_ALL_HISTORY,
+        data,
       });
     });
   };
