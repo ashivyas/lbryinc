@@ -2782,22 +2782,13 @@ function doSaveUserHelp(issue, message) {
   };
 }
 function doSaveUserFeedback(value1, value2, value3, value4) {
-  var feedbackObj = {
-    param1: {
-      value: value1
-    },
-    param2: {
-      value: value2
-    },
-    param3: {
-      value: value3
-    },
-    param4: {
-      value: value4
-    }
-  };
   return function (dispatch) {
-    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('helpandfeedback', 'feedback', feedbackObj, 'post').then(function (response) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('helpandfeedback', 'feedback', {
+      value1: value1,
+      value2: value2,
+      value3: value3,
+      value4: value4
+    }, 'post').then(function (response) {
       dispatch({
         type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_FEEDBACK,
         data: response
@@ -5305,9 +5296,9 @@ var historyReducer = Object(util_redux_utils__WEBPACK_IMPORTED_MODULE_0__["handl
     historyList: historyList
   });
 }), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_HISTORY"], function (state, action) {
-  var claim_id = action.data.claim_id;
+  var claimId = action.data.claimId;
   return _objectSpread({}, state, {
-    claim_id: claim_id
+    claimId: claimId
   });
 }), _defineProperty(_handleActions, constants_action_types__WEBPACK_IMPORTED_MODULE_1__["DELETE_ALL_HISTORY"], function (state, action) {
   var data = action.data.data;

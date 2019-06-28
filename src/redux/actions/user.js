@@ -516,26 +516,14 @@ export function doSaveUserHelp(issue, message) {
 }
 
 export function doSaveUserFeedback(value1, value2, value3, value4) {
-  const feedbackObj = {
-    param1: {
-      value: value1,
-    },
-    param2: {
-      value: value2,
-    },
-    param3: {
-      value: value3,
-    },
-    param4: {
-      value: value4,
-    },
-  };
   return dispatch => {
-    Lbryio.call('helpandfeedback', 'feedback', feedbackObj, 'post').then(response => {
-      dispatch({
-        type: ACTIONS.SAVE_USER_FEEDBACK,
-        data: response,
-      });
-    });
+    Lbryio.call('helpandfeedback', 'feedback', { value1, value2, value3, value4 }, 'post').then(
+      response => {
+        dispatch({
+          type: ACTIONS.SAVE_USER_FEEDBACK,
+          data: response,
+        });
+      }
+    );
   };
 }

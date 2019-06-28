@@ -1428,22 +1428,13 @@ function doSaveUserHelp(issue, message) {
   };
 }
 function doSaveUserFeedback(value1, value2, value3, value4) {
-  const feedbackObj = {
-    param1: {
-      value: value1
-    },
-    param2: {
-      value: value2
-    },
-    param3: {
-      value: value3
-    },
-    param4: {
-      value: value4
-    }
-  };
   return dispatch => {
-    Lbryio.call('helpandfeedback', 'feedback', feedbackObj, 'post').then(response => {
+    Lbryio.call('helpandfeedback', 'feedback', {
+      value1,
+      value2,
+      value3,
+      value4
+    }, 'post').then(response => {
       dispatch({
         type: ACTIONS.ACTIONS.SAVE_USER_FEEDBACK,
         data: response
@@ -3377,8 +3368,13 @@ const defaultState$c = {
   historyList: {}
 };
 const historyReducer = handleActions({
+  /*eslint-disable */
+  //suppress all warnings between comments
+  // eslint-disable-next-line no-use-before-define
   [ADD_TO_HISTORY]: (state, action) => ({ ...state
   }),
+
+  /* eslint-enable */
   [FETCH_HISTORY]: (state, action) => {
     const {
       historyList
@@ -3389,10 +3385,10 @@ const historyReducer = handleActions({
   },
   [DELETE_HISTORY]: (state, action) => {
     const {
-      claim_id
+      claimId
     } = action.data;
     return { ...state,
-      claim_id
+      claimId
     };
   },
   [DELETE_ALL_HISTORY]: (state, action) => {
