@@ -112,7 +112,7 @@ export function doFetchNotInterestedList() {
     Lbryio.call('file', 'not_interested_list').then(data => {
       dispatch({
         type: ACTIONS.FETCH_NOT_INTERESTED_LIST,
-        data,
+        data: { data },
       });
     });
   };

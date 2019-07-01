@@ -2926,7 +2926,9 @@ function doFetchNotInterestedList() {
     lbryio__WEBPACK_IMPORTED_MODULE_0__["default"].call('file', 'not_interested_list').then(function (data) {
       dispatch({
         type: constants_action_types__WEBPACK_IMPORTED_MODULE_2__["FETCH_NOT_INTERESTED_LIST"],
-        data: data
+        data: {
+          data: data
+        }
       });
     });
   };
