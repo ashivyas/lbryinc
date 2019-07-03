@@ -1,4 +1,5 @@
 import { ACTIONS } from 'lbry-redux';
+import { USER_PROFILE_SAVE, USER_PROFILE_UPDATE } from '../../constants/action_types';
 
 const reducers = {};
 
@@ -15,6 +16,7 @@ const defaultState = {
   invitees: undefined,
   user: undefined,
   usersDefaultState: [],
+  profileData: {},
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = state =>
@@ -253,22 +255,19 @@ reducers[ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state =>
     invitees: null,
   });
 
-reducers[ACTIONS.USER_PROFILE_SAVE] = (state, action) =>
-  Object.assign({}, state, {
-    name: action.data.profile.name,
-    dob: action.data.profile.dob,
-    gender: action.data.profile.gender,
-    number: action.data.profile.number,
-    description: action.data.profile.description,
+reducers[USER_PROFILE_SAVE] = (state, action) => {
+  const { profileData } = action.data;
+  return Object.assign({}, state, {
+    profileData,
   });
+};
 
-reducers[ACTIONS.USER_PROFILE_UPDATE] = (state, action) =>
-  Object.assign({}, state, {
-    name: action.data.profile.name,
-    dob: action.data.profile.dob,
-    gender: action.data.profile.gender,
-    description: action.data.profile.description,
+reducers[USER_PROFILE_UPDATE] = (state, action) => {
+  const { profileData } = action.data;
+  return Object.assign({}, state, {
+    profileData,
   });
+};
 
 reducers[ACTIONS.SAVE_USER_HELP] = (state, action) =>
   Object.assign({}, state, {

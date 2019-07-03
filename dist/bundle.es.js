@@ -795,7 +795,7 @@ const selectUserInviteStatusFailed = reselect.createSelector(selectUserInvitesRe
 const selectUserInviteNewIsPending = reselect.createSelector(selectState$1, state => state.inviteNewIsPending);
 const selectUserInviteNewErrorMessage = reselect.createSelector(selectState$1, state => state.inviteNewErrorMessage);
 const selectUserInviteReferralLink = reselect.createSelector(selectState$1, state => state.referralLink);
-const selectSavedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description && state.number);
+const selectSavedUserData = reselect.createSelector(selectState$1, state => state.profileData);
 const selectUpdatedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description);
 const selectHelpResponse = reselect.createSelector(selectState$1, state => state.response);
 const selectFeedbackResponse = reselect.createSelector(selectState$1, state => state.response);
@@ -1395,8 +1395,10 @@ function doUserProfileSave(name, dob, number, gender, description) {
       description
     }, 'post').then(userData => {
       dispatch({
-        type: ACTIONS.ACTIONS.USER_PROFILE_SAVE,
-        data: userData.data
+        type: USER_PROFILE_SAVE,
+        data: {
+          profileData: userData.profile
+        }
       });
     });
   };
@@ -1410,8 +1412,10 @@ function doUserProfileUpdate(name, dob, gender, description) {
       description
     }, 'post').then(userData => {
       dispatch({
-        type: ACTIONS.ACTIONS.USER_PROFILE_UPDATE,
-        data: userData.data
+        type: USER_PROFILE_UPDATE,
+        data: {
+          profileData: userData.profile
+        }
       });
     });
   };
@@ -2806,7 +2810,8 @@ const defaultState$3 = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: []
+  usersDefaultState: [],
+  profileData: {}
 };
 
 reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
@@ -3015,20 +3020,23 @@ reducers$2[ACTIONS.ACTIONS.USER_INVITE_STATUS_FETCH_FAILURE] = state => Object.a
   invitees: null
 });
 
-reducers$2[ACTIONS.ACTIONS.USER_PROFILE_SAVE] = (state, action) => Object.assign({}, state, {
-  name: action.data.profile.name,
-  dob: action.data.profile.dob,
-  gender: action.data.profile.gender,
-  number: action.data.profile.number,
-  description: action.data.profile.description
-});
+reducers$2[USER_PROFILE_SAVE] = (state, action) => {
+  const {
+    profileData
+  } = action.data;
+  return Object.assign({}, state, {
+    profileData
+  });
+};
 
-reducers$2[ACTIONS.ACTIONS.USER_PROFILE_UPDATE] = (state, action) => Object.assign({}, state, {
-  name: action.data.profile.name,
-  dob: action.data.profile.dob,
-  gender: action.data.profile.gender,
-  description: action.data.profile.description
-});
+reducers$2[USER_PROFILE_UPDATE] = (state, action) => {
+  const {
+    profileData
+  } = action.data;
+  return Object.assign({}, state, {
+    profileData
+  });
+};
 
 reducers$2[ACTIONS.ACTIONS.SAVE_USER_HELP] = (state, action) => Object.assign({}, state, {
   response: action.data.success

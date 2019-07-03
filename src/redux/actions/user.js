@@ -7,6 +7,7 @@ import {
   // selectUserCountryCode,
 } from 'redux/selectors/user';
 import Lbryio from 'lbryio';
+import { USER_PROFILE_SAVE, USER_PROFILE_UPDATE } from '../../constants/action_types';
 
 export function doFetchInviteStatus() {
   return dispatch => {
@@ -483,8 +484,8 @@ export function doUserProfileSave(name, dob, number, gender, description) {
     Lbryio.call('user', 'profile_save', { name, dob, number, gender, description }, 'post').then(
       userData => {
         dispatch({
-          type: ACTIONS.USER_PROFILE_SAVE,
-          data: userData.data,
+          type: USER_PROFILE_SAVE,
+          data: { profileData: userData.profile },
         });
       }
     );
@@ -496,8 +497,8 @@ export function doUserProfileUpdate(name, dob, gender, description) {
     Lbryio.call('user', 'profile_update', { name, dob, gender, description }, 'post').then(
       userData => {
         dispatch({
-          type: ACTIONS.USER_PROFILE_UPDATE,
-          data: userData.data,
+          type: USER_PROFILE_UPDATE,
+          data: { profileData: userData.profile },
         });
       }
     );

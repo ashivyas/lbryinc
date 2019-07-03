@@ -175,7 +175,7 @@ export const selectUserInviteReferralLink = createSelector(
 
 export const selectSavedUserData = createSelector(
   selectState,
-  state => state.name && state.dob && state.gender && state.description && state.number
+  state => state.profileData
 );
 
 export const selectUpdatedUserData = createSelector(

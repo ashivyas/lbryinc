@@ -2197,7 +2197,7 @@ var selectUserInviteReferralLink = Object(reselect__WEBPACK_IMPORTED_MODULE_0__[
   return state.referralLink;
 });
 var selectSavedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
-  return state.name && state.dob && state.gender && state.description && state.number;
+  return state.profileData;
 });
 var selectUpdatedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.name && state.dob && state.gender && state.description;
@@ -2247,6 +2247,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var redux_actions_homepage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(17);
 /* harmony import */ var redux_selectors_user__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(15);
 /* harmony import */ var lbryio__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(2);
+/* harmony import */ var _constants_action_types__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(1);
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -2254,6 +2255,7 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 
 
 
@@ -2747,8 +2749,10 @@ function doUserProfileSave(name, dob, number, gender, description) {
       description: description
     }, 'post').then(function (userData) {
       dispatch({
-        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_SAVE,
-        data: userData.data
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_SAVE"],
+        data: {
+          profileData: userData.profile
+        }
       });
     });
   };
@@ -2762,8 +2766,10 @@ function doUserProfileUpdate(name, dob, gender, description) {
       description: description
     }, 'post').then(function (userData) {
       dispatch({
-        type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_UPDATE,
-        data: userData.data
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_UPDATE"],
+        data: {
+          profileData: userData.profile
+        }
       });
     });
   };
@@ -4535,6 +4541,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "userReducer", function() { return userReducer; });
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lbry_redux__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _constants_action_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1);
+
 
 var reducers = {};
 var defaultState = {
@@ -4549,7 +4557,8 @@ var defaultState = {
   invitesRemaining: undefined,
   invitees: undefined,
   user: undefined,
-  usersDefaultState: []
+  usersDefaultState: [],
+  profileData: {}
 };
 
 reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].AUTHENTICATION_STARTED] = function (state) {
@@ -4818,22 +4827,17 @@ reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_INVITE_STATUS_F
   });
 };
 
-reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_SAVE] = function (state, action) {
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_SAVE"]] = function (state, action) {
+  var profileData = action.data.profileData;
   return Object.assign({}, state, {
-    name: action.data.profile.name,
-    dob: action.data.profile.dob,
-    gender: action.data.profile.gender,
-    number: action.data.profile.number,
-    description: action.data.profile.description
+    profileData: profileData
   });
 };
 
-reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].USER_PROFILE_UPDATE] = function (state, action) {
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_UPDATE"]] = function (state, action) {
+  var profileData = action.data.profileData;
   return Object.assign({}, state, {
-    name: action.data.profile.name,
-    dob: action.data.profile.dob,
-    gender: action.data.profile.gender,
-    description: action.data.profile.description
+    profileData: profileData
   });
 };
 
