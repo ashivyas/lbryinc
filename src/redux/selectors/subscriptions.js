@@ -10,24 +10,38 @@ import {
 } from 'lbry-redux';
 import { swapKeyAndValue } from 'util/swap-json';
 
-
 // Returns the entire subscriptions state
 const selectState = state => state.subscriptions || {};
 
 // Returns the count
-export const selectSubscriptionCount = createSelector(selectState, state => state.subscriptionCount);
+export const selectSubscriptionCount = createSelector(
+  selectState,
+  state => state.subscriptionCount
+);
 
 // Returns the list of channel uris a user is subscribed to
-export const selectSubscriptions = createSelector(selectState, state => state.subscriptions);
+export const selectSubscriptions = createSelector(
+  selectState,
+  state => state.subscriptions
+);
 
 // Fetching list of users subscriptions
-export const selectIsFetchingSubscriptions = createSelector(selectState, state => state.loading);
+export const selectIsFetchingSubscriptions = createSelector(
+  selectState,
+  state => state.loading
+);
 
 // The current view mode on the subscriptions page
-export const selectViewMode = createSelector(selectState, state => state.viewMode);
+export const selectViewMode = createSelector(
+  selectState,
+  state => state.viewMode
+);
 
 // Suggested subscriptions from internal apis
-export const selectSuggested = createSelector(selectState, state => state.suggested);
+export const selectSuggested = createSelector(
+  selectState,
+  state => state.suggested
+);
 export const selectIsFetchingSuggested = createSelector(
   selectState,
   state => state.loadingSuggested
@@ -112,23 +126,29 @@ export const selectSubscriptionsBeingFetched = createSelector(
   }
 );
 
-export const selectUnreadByChannel = createSelector(selectState, state => state.unread);
+export const selectUnreadByChannel = createSelector(
+  selectState,
+  state => state.unread
+);
 
 // Returns the current total of unread subscriptions
-export const selectUnreadAmount = createSelector(selectUnreadByChannel, unreadByChannel => {
-  const unreadChannels = Object.keys(unreadByChannel);
-  let badges = 0;
+export const selectUnreadAmount = createSelector(
+  selectUnreadByChannel,
+  unreadByChannel => {
+    const unreadChannels = Object.keys(unreadByChannel);
+    let badges = 0;
 
-  if (!unreadChannels.length) {
+    if (!unreadChannels.length) {
+      return badges;
+    }
+
+    unreadChannels.forEach(channel => {
+      badges += unreadByChannel[channel].uris.length;
+    });
+
     return badges;
   }
-
-  unreadChannels.forEach(channel => {
-    badges += unreadByChannel[channel].uris.length;
-  });
-
-  return badges;
-});
+);
 
 // Returns the uris with channels as an array with the channel with the newest content first
 // If you just want the `unread` state, use selectUnread
@@ -190,7 +210,10 @@ export const selectUnreadSubscriptions = createSelector(
 
 // Returns all unread subscriptions for a uri passed in
 export const makeSelectUnreadByChannel = uri =>
-  createSelector(selectUnreadByChannel, unread => unread[uri]);
+  createSelector(
+    selectUnreadByChannel,
+    unread => unread[uri]
+  );
 
 // Returns the first page of claims for every channel a user is subscribed to
 export const selectSubscriptionClaims = createSelector(

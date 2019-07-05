@@ -110,7 +110,8 @@ const FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
 const FETCH_RECENT_LIST = 'FETCH_RECENT_LIST'; // User Profile
 
 const USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
-const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
+const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE';
+const USER_PROFILE_FETCH = 'USER_PROFILE_FETCH'; // User Help &  Feedback
 
 const SAVE_USER_HELP = 'SAVE_USER_HELP';
 const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
@@ -206,6 +207,7 @@ var action_types = /*#__PURE__*/Object.freeze({
   FETCH_RECENT_LIST: FETCH_RECENT_LIST,
   USER_PROFILE_SAVE: USER_PROFILE_SAVE,
   USER_PROFILE_UPDATE: USER_PROFILE_UPDATE,
+  USER_PROFILE_FETCH: USER_PROFILE_FETCH,
   SAVE_USER_HELP: SAVE_USER_HELP,
   SAVE_USER_FEEDBACK: SAVE_USER_FEEDBACK,
   FETCH_NOT_INTERESTED_LIST: FETCH_NOT_INTERESTED_LIST,
@@ -1415,6 +1417,18 @@ function doUserProfileUpdate(name, dob, gender, description) {
         type: USER_PROFILE_UPDATE,
         data: {
           profileData: userData.profile
+        }
+      });
+    });
+  };
+}
+function doUserProfileFetch() {
+  return dispatch => {
+    Lbryio.call('user', 'profile_fetch').then(res => {
+      dispatch({
+        type: USER_PROFILE_FETCH,
+        data: {
+          profileData: res[0]['profile']
         }
       });
     });
@@ -3038,6 +3052,15 @@ reducers$2[USER_PROFILE_UPDATE] = (state, action) => {
   });
 };
 
+reducers$2[USER_PROFILE_FETCH] = (state, action) => {
+  const {
+    profileData
+  } = action.data;
+  return Object.assign({}, state, {
+    profileData
+  });
+};
+
 reducers$2[ACTIONS.ACTIONS.SAVE_USER_HELP] = (state, action) => Object.assign({}, state, {
   response: action.data.success
 });
@@ -3571,6 +3594,7 @@ exports.doUserPhoneNew = doUserPhoneNew;
 exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
 exports.doUserPhoneVerifyFailure = doUserPhoneVerifyFailure;
+exports.doUserProfileFetch = doUserProfileFetch;
 exports.doUserProfileSave = doUserProfileSave;
 exports.doUserProfileUpdate = doUserProfileUpdate;
 exports.doUserReport = doUserReport;

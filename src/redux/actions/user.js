@@ -7,7 +7,11 @@ import {
   // selectUserCountryCode,
 } from 'redux/selectors/user';
 import Lbryio from 'lbryio';
-import { USER_PROFILE_SAVE, USER_PROFILE_UPDATE } from '../../constants/action_types';
+import {
+  USER_PROFILE_SAVE,
+  USER_PROFILE_UPDATE,
+  USER_PROFILE_FETCH,
+} from '../../constants/action_types';
 
 export function doFetchInviteStatus() {
   return dispatch => {
@@ -502,6 +506,17 @@ export function doUserProfileUpdate(name, dob, gender, description) {
         });
       }
     );
+  };
+}
+
+export function doUserProfileFetch() {
+  return dispatch => {
+    Lbryio.call('user', 'profile_fetch').then(res => {
+      dispatch({
+        type: USER_PROFILE_FETCH,
+        data: { profileData: res[0].profile },
+      });
+    });
   };
 }
 

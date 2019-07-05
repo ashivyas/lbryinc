@@ -117,6 +117,7 @@ export const FETCH_RECENT_LIST = 'FETCH_RECENT_LIST';
 // User Profile
 export const USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
 export const USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE';
+export const USER_PROFILE_FETCH = 'USER_PROFILE_FETCH';
 
 // User Help &  Feedback
 export const SAVE_USER_HELP = 'SAVE_USER_HELP';

@@ -62,6 +62,7 @@ export {
   doUserReport,
   doUserProfileSave,
   doUserProfileUpdate,
+  doUserProfileFetch,
   doSaveUserHelp,
   doSaveUserFeedback,
 } from 'redux/actions/user';

@@ -1,5 +1,9 @@
 import { ACTIONS } from 'lbry-redux';
-import { USER_PROFILE_SAVE, USER_PROFILE_UPDATE } from '../../constants/action_types';
+import {
+  USER_PROFILE_SAVE,
+  USER_PROFILE_UPDATE,
+  USER_PROFILE_FETCH,
+} from '../../constants/action_types';
 
 const reducers = {};
 
@@ -263,6 +267,13 @@ reducers[USER_PROFILE_SAVE] = (state, action) => {
 };
 
 reducers[USER_PROFILE_UPDATE] = (state, action) => {
+  const { profileData } = action.data;
+  return Object.assign({}, state, {
+    profileData,
+  });
+};
+
+reducers[USER_PROFILE_FETCH] = (state, action) => {
   const { profileData } = action.data;
   return Object.assign({}, state, {
     profileData,

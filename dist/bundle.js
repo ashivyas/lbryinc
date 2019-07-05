@@ -209,6 +209,8 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserProfileUpdate", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserProfileUpdate"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserProfileFetch", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserProfileFetch"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSaveUserHelp"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSaveUserFeedback"]; });
@@ -687,6 +689,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_RECENT_LIST", function() { return FETCH_RECENT_LIST; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_SAVE", function() { return USER_PROFILE_SAVE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_UPDATE", function() { return USER_PROFILE_UPDATE; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_PROFILE_FETCH", function() { return USER_PROFILE_FETCH; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_HELP", function() { return SAVE_USER_HELP; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_FEEDBACK", function() { return SAVE_USER_FEEDBACK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_NOT_INTERESTED_LIST", function() { return FETCH_NOT_INTERESTED_LIST; });
@@ -793,7 +796,8 @@ var FETCH_CONTENT_CATEGORY = 'FETCH_CONTENT_CATEGORY';
 var FETCH_RECENT_LIST = 'FETCH_RECENT_LIST'; // User Profile
 
 var USER_PROFILE_SAVE = 'USER_PROFILE_SAVE';
-var USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE'; // User Help &  Feedback
+var USER_PROFILE_UPDATE = 'USER_PROFILE_UPDATE';
+var USER_PROFILE_FETCH = 'USER_PROFILE_FETCH'; // User Help &  Feedback
 
 var SAVE_USER_HELP = 'SAVE_USER_HELP';
 var SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
@@ -2239,6 +2243,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserCheckId", function() { return doUserCheckId; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileSave", function() { return doUserProfileSave; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileUpdate", function() { return doUserProfileUpdate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileFetch", function() { return doUserProfileFetch; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return doSaveUserHelp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return doSaveUserFeedback; });
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
@@ -2769,6 +2774,18 @@ function doUserProfileUpdate(name, dob, gender, description) {
         type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_UPDATE"],
         data: {
           profileData: userData.profile
+        }
+      });
+    });
+  };
+}
+function doUserProfileFetch() {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user', 'profile_fetch').then(function (res) {
+      dispatch({
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_FETCH"],
+        data: {
+          profileData: res[0]['profile']
         }
       });
     });
@@ -4835,6 +4852,13 @@ reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_SAVE
 };
 
 reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_UPDATE"]] = function (state, action) {
+  var profileData = action.data.profileData;
+  return Object.assign({}, state, {
+    profileData: profileData
+  });
+};
+
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_FETCH"]] = function (state, action) {
   var profileData = action.data.profileData;
   return Object.assign({}, state, {
     profileData: profileData
