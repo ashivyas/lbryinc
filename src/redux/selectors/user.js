@@ -178,6 +178,16 @@ export const selectSavedUserData = createSelector(
   state => state.profileData
 );
 
+export const selectUserNotificationData = createSelector(
+  selectState,
+  state => state.notificationData
+);
+
+export const selectUserNotificationCallbackData = createSelector(
+  selectState,
+  state => state.notificationCallbackData
+);
+
 export const selectUpdatedUserData = createSelector(
   selectState,
   state => state.name && state.dob && state.gender && state.description

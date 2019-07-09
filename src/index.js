@@ -65,6 +65,8 @@ export {
   doUserProfileFetch,
   doSaveUserHelp,
   doSaveUserFeedback,
+  doUserNotificationRegister,
+  doUserNotificationCallback,
 } from 'redux/actions/user';
 export { doReportType } from 'redux/actions/report';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
@@ -190,6 +192,8 @@ export {
   selectUpdatedUserData,
   selectHelpResponse,
   selectFeedbackResponse,
+  selectUserNotificationCallbackData,
+  selectUserNotificationData,
 } from 'redux/selectors/user';
 export {
   likeSelector,

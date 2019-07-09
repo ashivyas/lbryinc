@@ -215,6 +215,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSaveUserFeedback"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserNotificationRegister", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserNotificationRegister"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserNotificationCallback", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserNotificationCallback"]; });
+
 /* harmony import */ var redux_actions_report__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(22);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doReportType", function() { return redux_actions_report__WEBPACK_IMPORTED_MODULE_8__["doReportType"]; });
 
@@ -474,6 +478,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectFeedbackResponse", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectFeedbackResponse"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectUserNotificationCallbackData", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectUserNotificationCallbackData"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectUserNotificationData", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectUserNotificationData"]; });
+
 /* harmony import */ var redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(47);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "likeSelector", function() { return redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__["likeSelector"]; });
 
@@ -694,6 +702,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SAVE_USER_FEEDBACK", function() { return SAVE_USER_FEEDBACK; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_NOT_INTERESTED_LIST", function() { return FETCH_NOT_INTERESTED_LIST; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NOT_INTERESTED_CONTENT", function() { return NOT_INTERESTED_CONTENT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NOTIFICATION_REGISTER", function() { return NOTIFICATION_REGISTER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "NOTIFICATION_CALLBACK", function() { return NOTIFICATION_CALLBACK; });
 // Auth Token
 var GENERATE_AUTH_TOKEN_FAILURE = 'GENERATE_AUTH_TOKEN_FAILURE';
 var GENERATE_AUTH_TOKEN_STARTED = 'GENERATE_AUTH_TOKEN_STARTED';
@@ -803,7 +813,10 @@ var SAVE_USER_HELP = 'SAVE_USER_HELP';
 var SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
 
 var FETCH_NOT_INTERESTED_LIST = 'FETCH_NOT_INTERESTED_LIST';
-var NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT';
+var NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT'; // Notifications
+
+var NOTIFICATION_REGISTER = 'NOTIFICATION_REGISTER';
+var NOTIFICATION_CALLBACK = 'NOTIFICATION_CALLBACK';
 
 /***/ }),
 /* 2 */
@@ -2088,6 +2101,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserInviteNewErrorMessage", function() { return selectUserInviteNewErrorMessage; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserInviteReferralLink", function() { return selectUserInviteReferralLink; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectSavedUserData", function() { return selectSavedUserData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserNotificationData", function() { return selectUserNotificationData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUserNotificationCallbackData", function() { return selectUserNotificationCallbackData; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUpdatedUserData", function() { return selectUpdatedUserData; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectHelpResponse", function() { return selectHelpResponse; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFeedbackResponse", function() { return selectFeedbackResponse; });
@@ -2203,6 +2218,12 @@ var selectUserInviteReferralLink = Object(reselect__WEBPACK_IMPORTED_MODULE_0__[
 var selectSavedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.profileData;
 });
+var selectUserNotificationData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.notificationData;
+});
+var selectUserNotificationCallbackData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.notificationCallbackData;
+});
 var selectUpdatedUserData = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.name && state.dob && state.gender && state.description;
 });
@@ -2242,6 +2263,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserInviteNew", function() { return doUserInviteNew; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserCheckId", function() { return doUserCheckId; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileSave", function() { return doUserProfileSave; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserNotificationRegister", function() { return doUserNotificationRegister; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserNotificationCallback", function() { return doUserNotificationCallback; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileUpdate", function() { return doUserProfileUpdate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileFetch", function() { return doUserProfileFetch; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return doSaveUserHelp; });
@@ -2744,14 +2767,15 @@ function doUserCheckId(input) {
     });
   };
 }
-function doUserProfileSave(name, dob, number, gender, description) {
+function doUserProfileSave(name, dob, number, gender, description, email) {
   return function (dispatch) {
     lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user', 'profile_save', {
       name: name,
       dob: dob,
       number: number,
       gender: gender,
-      description: description
+      description: description,
+      email: email
     }, 'post').then(function (userData) {
       dispatch({
         type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_SAVE"],
@@ -2759,6 +2783,43 @@ function doUserProfileSave(name, dob, number, gender, description) {
           profileData: userData.profile
         }
       });
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doUserNotificationRegister(device_token, device_type) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user_notification', 'notification_register', {
+      device_token: device_token,
+      device_type: device_type
+    }, 'post').then(function (data) {
+      console.log('Notification Register result is ', data);
+      dispatch({
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["NOTIFICATION_REGISTER"],
+        data: {
+          notificationData: data
+        }
+      });
+    })["catch"](function (error) {
+      throw new Error('User receiving Error ', error);
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doUserNotificationCallback(device_token) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('user_notification', 'notification_callback', {
+      device_token: device_token
+    }, 'post').then(function (data) {
+      console.log('Notification callback result is ', data, data[0]);
+      dispatch({
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["NOTIFICATION_CALLBACK"],
+        data: {
+          notificationCallbackData: data[0]
+        }
+      });
+    })["catch"](function (error) {
+      throw new Error('User receiving Error ', error);
     });
   };
 }
@@ -2785,7 +2846,7 @@ function doUserProfileFetch() {
       dispatch({
         type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["USER_PROFILE_FETCH"],
         data: {
-          profileData: res[0]['profile']
+          profileData: res[0].profile
         }
       });
     });
@@ -4855,6 +4916,20 @@ reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_UPDA
   var profileData = action.data.profileData;
   return Object.assign({}, state, {
     profileData: profileData
+  });
+};
+
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["NOTIFICATION_CALLBACK"]] = function (state, action) {
+  var notificationCallbackData = action.data.notificationCallbackData;
+  return Object.assign({}, state, {
+    notificationCallbackData: notificationCallbackData
+  });
+};
+
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["NOTIFICATION_REGISTER"]] = function (state, action) {
+  var notificationData = action.data.notificationData;
+  return Object.assign({}, state, {
+    notificationData: notificationData
   });
 };
 

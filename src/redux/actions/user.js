@@ -11,6 +11,8 @@ import {
   USER_PROFILE_SAVE,
   USER_PROFILE_UPDATE,
   USER_PROFILE_FETCH,
+  NOTIFICATION_REGISTER,
+  NOTIFICATION_CALLBACK,
 } from '../../constants/action_types';
 
 export function doFetchInviteStatus() {
@@ -483,16 +485,52 @@ export function doUserCheckId(input) {
   };
 }
 
-export function doUserProfileSave(name, dob, number, gender, description) {
+export function doUserProfileSave(name, dob, number, gender, description, email) {
   return dispatch => {
-    Lbryio.call('user', 'profile_save', { name, dob, number, gender, description }, 'post').then(
-      userData => {
+    Lbryio.call(
+      'user',
+      'profile_save',
+      { name, dob, number, gender, description, email },
+      'post'
+    ).then(userData => {
+      dispatch({
+        type: USER_PROFILE_SAVE,
+        data: { profileData: userData.profile },
+      });
+    });
+  };
+}
+// eslint-disable-next-line camelcase
+export function doUserNotificationRegister(device_token, device_type) {
+  return dispatch => {
+    Lbryio.call('user_notification', 'notification_register', { device_token, device_type }, 'post')
+      .then(data => {
+        console.log('Notification Register result is ', data);
         dispatch({
-          type: USER_PROFILE_SAVE,
-          data: { profileData: userData.profile },
+          type: NOTIFICATION_REGISTER,
+          data: { notificationData: data },
         });
-      }
-    );
+      })
+      .catch(error => {
+        throw new Error('User receiving Error ', error);
+      });
+  };
+}
+
+// eslint-disable-next-line camelcase
+export function doUserNotificationCallback(device_token) {
+  return dispatch => {
+    Lbryio.call('user_notification', 'notification_callback', { device_token }, 'post')
+      .then(data => {
+        console.log('Notification callback result is ', data, data[0]);
+        dispatch({
+          type: NOTIFICATION_CALLBACK,
+          data: { notificationCallbackData: data[0] },
+        });
+      })
+      .catch(error => {
+        throw new Error('User receiving Error ', error);
+      });
   };
 }
 

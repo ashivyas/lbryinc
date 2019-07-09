@@ -117,7 +117,10 @@ const SAVE_USER_HELP = 'SAVE_USER_HELP';
 const SAVE_USER_FEEDBACK = 'SAVE_USER_FEEDBACK'; // Not Interested
 
 const FETCH_NOT_INTERESTED_LIST = 'FETCH_NOT_INTERESTED_LIST';
-const NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT';
+const NOT_INTERESTED_CONTENT = 'NOT_INTERESTED_CONTENT'; // Notifications
+
+const NOTIFICATION_REGISTER = 'NOTIFICATION_REGISTER';
+const NOTIFICATION_CALLBACK = 'NOTIFICATION_CALLBACK';
 
 var action_types = /*#__PURE__*/Object.freeze({
   GENERATE_AUTH_TOKEN_FAILURE: GENERATE_AUTH_TOKEN_FAILURE,
@@ -211,7 +214,9 @@ var action_types = /*#__PURE__*/Object.freeze({
   SAVE_USER_HELP: SAVE_USER_HELP,
   SAVE_USER_FEEDBACK: SAVE_USER_FEEDBACK,
   FETCH_NOT_INTERESTED_LIST: FETCH_NOT_INTERESTED_LIST,
-  NOT_INTERESTED_CONTENT: NOT_INTERESTED_CONTENT
+  NOT_INTERESTED_CONTENT: NOT_INTERESTED_CONTENT,
+  NOTIFICATION_REGISTER: NOTIFICATION_REGISTER,
+  NOTIFICATION_CALLBACK: NOTIFICATION_CALLBACK
 });
 
 const Lbryio = {
@@ -798,6 +803,8 @@ const selectUserInviteNewIsPending = reselect.createSelector(selectState$1, stat
 const selectUserInviteNewErrorMessage = reselect.createSelector(selectState$1, state => state.inviteNewErrorMessage);
 const selectUserInviteReferralLink = reselect.createSelector(selectState$1, state => state.referralLink);
 const selectSavedUserData = reselect.createSelector(selectState$1, state => state.profileData);
+const selectUserNotificationData = reselect.createSelector(selectState$1, state => state.notificationData);
+const selectUserNotificationCallbackData = reselect.createSelector(selectState$1, state => state.notificationCallbackData);
 const selectUpdatedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description);
 const selectHelpResponse = reselect.createSelector(selectState$1, state => state.response);
 const selectFeedbackResponse = reselect.createSelector(selectState$1, state => state.response);
@@ -1387,14 +1394,15 @@ function doUserCheckId(input) {
     });
   };
 }
-function doUserProfileSave(name, dob, number, gender, description) {
+function doUserProfileSave(name, dob, number, gender, description, email) {
   return dispatch => {
     Lbryio.call('user', 'profile_save', {
       name,
       dob,
       number,
       gender,
-      description
+      description,
+      email
     }, 'post').then(userData => {
       dispatch({
         type: USER_PROFILE_SAVE,
@@ -1402,6 +1410,43 @@ function doUserProfileSave(name, dob, number, gender, description) {
           profileData: userData.profile
         }
       });
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doUserNotificationRegister(device_token, device_type) {
+  return dispatch => {
+    Lbryio.call('user_notification', 'notification_register', {
+      device_token,
+      device_type
+    }, 'post').then(data => {
+      console.log('Notification Register result is ', data);
+      dispatch({
+        type: NOTIFICATION_REGISTER,
+        data: {
+          notificationData: data
+        }
+      });
+    }).catch(error => {
+      throw new Error('User receiving Error ', error);
+    });
+  };
+} // eslint-disable-next-line camelcase
+
+function doUserNotificationCallback(device_token) {
+  return dispatch => {
+    Lbryio.call('user_notification', 'notification_callback', {
+      device_token
+    }, 'post').then(data => {
+      console.log('Notification callback result is ', data, data[0]);
+      dispatch({
+        type: NOTIFICATION_CALLBACK,
+        data: {
+          notificationCallbackData: data[0]
+        }
+      });
+    }).catch(error => {
+      throw new Error('User receiving Error ', error);
     });
   };
 }
@@ -1428,7 +1473,7 @@ function doUserProfileFetch() {
       dispatch({
         type: USER_PROFILE_FETCH,
         data: {
-          profileData: res[0]['profile']
+          profileData: res[0].profile
         }
       });
     });
@@ -3052,6 +3097,24 @@ reducers$2[USER_PROFILE_UPDATE] = (state, action) => {
   });
 };
 
+reducers$2[NOTIFICATION_CALLBACK] = (state, action) => {
+  const {
+    notificationCallbackData
+  } = action.data;
+  return Object.assign({}, state, {
+    notificationCallbackData
+  });
+};
+
+reducers$2[NOTIFICATION_REGISTER] = (state, action) => {
+  const {
+    notificationData
+  } = action.data;
+  return Object.assign({}, state, {
+    notificationData
+  });
+};
+
 reducers$2[USER_PROFILE_FETCH] = (state, action) => {
   const {
     profileData
@@ -3590,6 +3653,8 @@ exports.doUserIdentityVerify = doUserIdentityVerify;
 exports.doUserInviteNew = doUserInviteNew;
 exports.doUserLogout = doUserLogout;
 exports.doUserMobileVerify = doUserMobileVerify;
+exports.doUserNotificationCallback = doUserNotificationCallback;
+exports.doUserNotificationRegister = doUserNotificationRegister;
 exports.doUserPhoneNew = doUserPhoneNew;
 exports.doUserPhoneReset = doUserPhoneReset;
 exports.doUserPhoneVerify = doUserPhoneVerify;
@@ -3702,6 +3767,8 @@ exports.selectUserIsPending = selectUserIsPending;
 exports.selectUserIsRewardApproved = selectUserIsRewardApproved;
 exports.selectUserIsVerificationCandidate = selectUserIsVerificationCandidate;
 exports.selectUserLoggedOut = selectUserLoggedOut;
+exports.selectUserNotificationCallbackData = selectUserNotificationCallbackData;
+exports.selectUserNotificationData = selectUserNotificationData;
 exports.selectUserPhone = selectUserPhone;
 exports.selectUserReport = selectUserReport;
 exports.selectViewCount = selectViewCount;

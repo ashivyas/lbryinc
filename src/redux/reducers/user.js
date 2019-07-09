@@ -3,6 +3,8 @@ import {
   USER_PROFILE_SAVE,
   USER_PROFILE_UPDATE,
   USER_PROFILE_FETCH,
+  NOTIFICATION_CALLBACK,
+  NOTIFICATION_REGISTER,
 } from '../../constants/action_types';
 
 const reducers = {};
@@ -270,6 +272,20 @@ reducers[USER_PROFILE_UPDATE] = (state, action) => {
   const { profileData } = action.data;
   return Object.assign({}, state, {
     profileData,
+  });
+};
+
+reducers[NOTIFICATION_CALLBACK] = (state, action) => {
+  const { notificationCallbackData } = action.data;
+  return Object.assign({}, state, {
+    notificationCallbackData,
+  });
+};
+
+reducers[NOTIFICATION_REGISTER] = (state, action) => {
+  const { notificationData } = action.data;
+  return Object.assign({}, state, {
+    notificationData,
   });
 };
 
