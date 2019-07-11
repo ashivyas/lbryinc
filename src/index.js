@@ -67,6 +67,8 @@ export {
   doSaveUserFeedback,
   doUserNotificationRegister,
   doUserNotificationCallback,
+  doSearchWithFilters,
+  doFilterResultsVisible,
 } from 'redux/actions/user';
 export { doReportType } from 'redux/actions/report';
 export { doFetchCostInfoForUri } from 'redux/actions/cost_info';
@@ -194,6 +196,8 @@ export {
   selectFeedbackResponse,
   selectUserNotificationCallbackData,
   selectUserNotificationData,
+  selectFilteredSearchList,
+  selectFilterResultsVisible,
 } from 'redux/selectors/user';
 export {
   likeSelector,

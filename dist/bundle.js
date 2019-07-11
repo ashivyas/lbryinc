@@ -219,6 +219,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doUserNotificationCallback", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doUserNotificationCallback"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doSearchWithFilters", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doSearchWithFilters"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doFilterResultsVisible", function() { return redux_actions_user__WEBPACK_IMPORTED_MODULE_7__["doFilterResultsVisible"]; });
+
 /* harmony import */ var redux_actions_report__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(22);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "doReportType", function() { return redux_actions_report__WEBPACK_IMPORTED_MODULE_8__["doReportType"]; });
 
@@ -482,6 +486,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectUserNotificationData", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectUserNotificationData"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectFilteredSearchList", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectFilteredSearchList"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "selectFilterResultsVisible", function() { return redux_selectors_user__WEBPACK_IMPORTED_MODULE_36__["selectFilterResultsVisible"]; });
+
 /* harmony import */ var redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(47);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "likeSelector", function() { return redux_selectors_likes__WEBPACK_IMPORTED_MODULE_37__["likeSelector"]; });
 
@@ -692,6 +700,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DELETE_ALL_HISTORY", function() { return DELETE_ALL_HISTORY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AUTOCOMPLETE_SEARCH_QUERY", function() { return AUTOCOMPLETE_SEARCH_QUERY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SEARCH_QUERY_RESULT", function() { return SEARCH_QUERY_RESULT; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SEARCH_QUERY_FILTERS", function() { return SEARCH_QUERY_FILTERS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SEARCH_FILTER_VISIBLE", function() { return SEARCH_FILTER_VISIBLE; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "USER_REPORT_SUCCESS", function() { return USER_REPORT_SUCCESS; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_CONTENT_CATEGORY", function() { return FETCH_CONTENT_CATEGORY; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FETCH_RECENT_LIST", function() { return FETCH_RECENT_LIST; });
@@ -798,7 +808,9 @@ var DELETE_HISTORY = 'DELETE_HISTORY';
 var DELETE_ALL_HISTORY = 'DELETE_ALL_HISTORY'; // Search Queries
 
 var AUTOCOMPLETE_SEARCH_QUERY = 'AUTOCOMPLETE_SEARCH_QUERY';
-var SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
+var SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT';
+var SEARCH_QUERY_FILTERS = 'SEARCH_QUERY_FILTERS';
+var SEARCH_FILTER_VISIBLE = 'SEARCH_FILTER_VISIBLE'; // Report
 
 var USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
@@ -2106,6 +2118,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectUpdatedUserData", function() { return selectUpdatedUserData; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectHelpResponse", function() { return selectHelpResponse; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFeedbackResponse", function() { return selectFeedbackResponse; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFilteredSearchList", function() { return selectFilteredSearchList; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "selectFilterResultsVisible", function() { return selectFilterResultsVisible; });
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(14);
 /* harmony import */ var reselect__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(reselect__WEBPACK_IMPORTED_MODULE_0__);
 
@@ -2233,6 +2247,12 @@ var selectHelpResponse = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSel
 var selectFeedbackResponse = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
   return state.response;
 });
+var selectFilteredSearchList = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.filteredSearchList;
+});
+var selectFilterResultsVisible = Object(reselect__WEBPACK_IMPORTED_MODULE_0__["createSelector"])(selectState, function (state) {
+  return state.filterResultsVisible;
+});
 
 /***/ }),
 /* 16 */
@@ -2269,6 +2289,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doUserProfileFetch", function() { return doUserProfileFetch; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserHelp", function() { return doSaveUserHelp; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSaveUserFeedback", function() { return doSaveUserFeedback; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doSearchWithFilters", function() { return doSearchWithFilters; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "doFilterResultsVisible", function() { return doFilterResultsVisible; });
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(3);
 /* harmony import */ var lbry_redux__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lbry_redux__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var redux_actions_rewards__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(12);
@@ -2877,6 +2899,34 @@ function doSaveUserFeedback(value1, value2, value3, value4) {
         type: lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].SAVE_USER_FEEDBACK,
         data: response
       });
+    });
+  };
+} // Search with filters -- Views | Likes | Upload Time
+
+function doSearchWithFilters(string, viewFilter, timeFilter, visible) {
+  return function (dispatch) {
+    lbryio__WEBPACK_IMPORTED_MODULE_4__["default"].call('file', 'search', {
+      search_string: string,
+      view_filter: viewFilter,
+      time_filter: timeFilter
+    }).then(function (res) {
+      dispatch({
+        type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["SEARCH_QUERY_FILTERS"],
+        data: {
+          filteredSearchList: res,
+          filterResultsVisible: visible
+        }
+      });
+    });
+  };
+}
+function doFilterResultsVisible(visible) {
+  return function (dispatch) {
+    dispatch({
+      type: _constants_action_types__WEBPACK_IMPORTED_MODULE_5__["SEARCH_FILTER_VISIBLE"],
+      data: {
+        filterResultsVisible: visible
+      }
     });
   };
 }
@@ -4636,7 +4686,8 @@ var defaultState = {
   invitees: undefined,
   user: undefined,
   usersDefaultState: [],
-  profileData: {}
+  profileData: {},
+  filterResultsVisible: false
 };
 
 reducers[lbry_redux__WEBPACK_IMPORTED_MODULE_0__["ACTIONS"].AUTHENTICATION_STARTED] = function (state) {
@@ -4937,6 +4988,23 @@ reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["USER_PROFILE_FETC
   var profileData = action.data.profileData;
   return Object.assign({}, state, {
     profileData: profileData
+  });
+};
+
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["SEARCH_QUERY_FILTERS"]] = function (state, action) {
+  var _action$data = action.data,
+      filteredSearchList = _action$data.filteredSearchList,
+      filterResultsVisible = _action$data.filterResultsVisible;
+  return Object.assign({}, state, {
+    filteredSearchList: filteredSearchList,
+    filterResultsVisible: filterResultsVisible
+  });
+};
+
+reducers[_constants_action_types__WEBPACK_IMPORTED_MODULE_1__["SEARCH_FILTER_VISIBLE"]] = function (state, action) {
+  var filterResultsVisible = action.data.filterResultsVisible;
+  return Object.assign({}, state, {
+    filterResultsVisible: filterResultsVisible
   });
 };
 

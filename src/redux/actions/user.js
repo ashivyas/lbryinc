@@ -11,6 +11,8 @@ import {
   USER_PROFILE_SAVE,
   USER_PROFILE_UPDATE,
   USER_PROFILE_FETCH,
+  SEARCH_QUERY_FILTERS,
+  SEARCH_FILTER_VISIBLE,
   NOTIFICATION_REGISTER,
   NOTIFICATION_CALLBACK,
 } from '../../constants/action_types';
@@ -579,5 +581,35 @@ export function doSaveUserFeedback(value1, value2, value3, value4) {
         });
       }
     );
+  };
+}
+
+// Search with filters -- Views | Likes | Upload Time
+export function doSearchWithFilters(string, viewFilter, timeFilter, visible) {
+  return dispatch => {
+    Lbryio.call('file', 'search', {
+      search_string: string,
+      view_filter: viewFilter,
+      time_filter: timeFilter,
+    }).then(res => {
+      dispatch({
+        type: SEARCH_QUERY_FILTERS,
+        data: {
+          filteredSearchList: res,
+          filterResultsVisible: visible,
+        },
+      });
+    });
+  };
+}
+
+export function doFilterResultsVisible(visible) {
+  return dispatch => {
+    dispatch({
+      type: SEARCH_FILTER_VISIBLE,
+      data: {
+        filterResultsVisible: visible,
+      },
+    });
   };
 }

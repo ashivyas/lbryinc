@@ -5,6 +5,8 @@ import {
   USER_PROFILE_FETCH,
   NOTIFICATION_CALLBACK,
   NOTIFICATION_REGISTER,
+  SEARCH_QUERY_FILTERS,
+  SEARCH_FILTER_VISIBLE,
 } from '../../constants/action_types';
 
 const reducers = {};
@@ -23,6 +25,7 @@ const defaultState = {
   user: undefined,
   usersDefaultState: [],
   profileData: {},
+  filterResultsVisible: false,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = state =>
@@ -293,6 +296,21 @@ reducers[USER_PROFILE_FETCH] = (state, action) => {
   const { profileData } = action.data;
   return Object.assign({}, state, {
     profileData,
+  });
+};
+
+reducers[SEARCH_QUERY_FILTERS] = (state, action) => {
+  const { filteredSearchList, filterResultsVisible } = action.data;
+  return Object.assign({}, state, {
+    filteredSearchList,
+    filterResultsVisible,
+  });
+};
+
+reducers[SEARCH_FILTER_VISIBLE] = (state, action) => {
+  const { filterResultsVisible } = action.data;
+  return Object.assign({}, state, {
+    filterResultsVisible,
   });
 };
 

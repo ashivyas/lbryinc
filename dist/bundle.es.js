@@ -102,7 +102,9 @@ const DELETE_HISTORY = 'DELETE_HISTORY';
 const DELETE_ALL_HISTORY = 'DELETE_ALL_HISTORY'; // Search Queries
 
 const AUTOCOMPLETE_SEARCH_QUERY = 'AUTOCOMPLETE_SEARCH_QUERY';
-const SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT'; // Report
+const SEARCH_QUERY_RESULT = 'SEARCH_QUERY_RESULT';
+const SEARCH_QUERY_FILTERS = 'SEARCH_QUERY_FILTERS';
+const SEARCH_FILTER_VISIBLE = 'SEARCH_FILTER_VISIBLE'; // Report
 
 const USER_REPORT_SUCCESS = 'USER_REPORT_SUCCESS'; // Category
 
@@ -205,6 +207,8 @@ var action_types = /*#__PURE__*/Object.freeze({
   DELETE_ALL_HISTORY: DELETE_ALL_HISTORY,
   AUTOCOMPLETE_SEARCH_QUERY: AUTOCOMPLETE_SEARCH_QUERY,
   SEARCH_QUERY_RESULT: SEARCH_QUERY_RESULT,
+  SEARCH_QUERY_FILTERS: SEARCH_QUERY_FILTERS,
+  SEARCH_FILTER_VISIBLE: SEARCH_FILTER_VISIBLE,
   USER_REPORT_SUCCESS: USER_REPORT_SUCCESS,
   FETCH_CONTENT_CATEGORY: FETCH_CONTENT_CATEGORY,
   FETCH_RECENT_LIST: FETCH_RECENT_LIST,
@@ -808,6 +812,8 @@ const selectUserNotificationCallbackData = reselect.createSelector(selectState$1
 const selectUpdatedUserData = reselect.createSelector(selectState$1, state => state.name && state.dob && state.gender && state.description);
 const selectHelpResponse = reselect.createSelector(selectState$1, state => state.response);
 const selectFeedbackResponse = reselect.createSelector(selectState$1, state => state.response);
+const selectFilteredSearchList = reselect.createSelector(selectState$1, state => state.filteredSearchList);
+const selectFilterResultsVisible = reselect.createSelector(selectState$1, state => state.filterResultsVisible);
 
 function doFetchFeaturedUris(offloadResolve = false) {
   return dispatch => {
@@ -1504,6 +1510,34 @@ function doSaveUserFeedback(value1, value2, value3, value4) {
         type: ACTIONS.ACTIONS.SAVE_USER_FEEDBACK,
         data: response
       });
+    });
+  };
+} // Search with filters -- Views | Likes | Upload Time
+
+function doSearchWithFilters(string, viewFilter, timeFilter, visible) {
+  return dispatch => {
+    Lbryio.call('file', 'search', {
+      search_string: string,
+      view_filter: viewFilter,
+      time_filter: timeFilter
+    }).then(res => {
+      dispatch({
+        type: SEARCH_QUERY_FILTERS,
+        data: {
+          filteredSearchList: res,
+          filterResultsVisible: visible
+        }
+      });
+    });
+  };
+}
+function doFilterResultsVisible(visible) {
+  return dispatch => {
+    dispatch({
+      type: SEARCH_FILTER_VISIBLE,
+      data: {
+        filterResultsVisible: visible
+      }
     });
   };
 }
@@ -2870,7 +2904,8 @@ const defaultState$3 = {
   invitees: undefined,
   user: undefined,
   usersDefaultState: [],
-  profileData: {}
+  profileData: {},
+  filterResultsVisible: false
 };
 
 reducers$2[ACTIONS.ACTIONS.AUTHENTICATION_STARTED] = state => Object.assign({}, state, {
@@ -3121,6 +3156,26 @@ reducers$2[USER_PROFILE_FETCH] = (state, action) => {
   } = action.data;
   return Object.assign({}, state, {
     profileData
+  });
+};
+
+reducers$2[SEARCH_QUERY_FILTERS] = (state, action) => {
+  const {
+    filteredSearchList,
+    filterResultsVisible
+  } = action.data;
+  return Object.assign({}, state, {
+    filteredSearchList,
+    filterResultsVisible
+  });
+};
+
+reducers$2[SEARCH_FILTER_VISIBLE] = (state, action) => {
+  const {
+    filterResultsVisible
+  } = action.data;
+  return Object.assign({}, state, {
+    filterResultsVisible
   });
 };
 
@@ -3618,6 +3673,7 @@ exports.doFetchRecommendedSubscriptions = doFetchRecommendedSubscriptions;
 exports.doFetchRewardedContent = doFetchRewardedContent;
 exports.doFetchTrendingUris = doFetchTrendingUris;
 exports.doFetchViewCount = doFetchViewCount;
+exports.doFilterResultsVisible = doFilterResultsVisible;
 exports.doGenerateAuthToken = doGenerateAuthToken;
 exports.doGetSync = doGetSync;
 exports.doInstallNew = doInstallNew;
@@ -3636,6 +3692,7 @@ exports.doRewardList = doRewardList;
 exports.doSaveUserFeedback = doSaveUserFeedback;
 exports.doSaveUserHelp = doSaveUserHelp;
 exports.doSearchQuery = doSearchQuery;
+exports.doSearchWithFilters = doSearchWithFilters;
 exports.doSetDefaultAccount = doSetDefaultAccount;
 exports.doSetSync = doSetSync;
 exports.doSetViewMode = doSetViewMode;
@@ -3708,6 +3765,8 @@ exports.selectFetchingCostInfo = selectFetchingCostInfo;
 exports.selectFetchingFeaturedUris = selectFetchingFeaturedUris;
 exports.selectFetchingRewards = selectFetchingRewards;
 exports.selectFetchingTrendingUris = selectFetchingTrendingUris;
+exports.selectFilterResultsVisible = selectFilterResultsVisible;
+exports.selectFilteredSearchList = selectFilteredSearchList;
 exports.selectFirstRunCompleted = selectFirstRunCompleted;
 exports.selectHasSyncedWallet = selectHasSyncedWallet;
 exports.selectHelpResponse = selectHelpResponse;

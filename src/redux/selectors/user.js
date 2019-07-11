@@ -202,3 +202,13 @@ export const selectFeedbackResponse = createSelector(
   selectState,
   state => state.response
 );
+
+export const selectFilteredSearchList = createSelector(
+  selectState,
+  state => state.filteredSearchList
+);
+
+export const selectFilterResultsVisible = createSelector(
+  selectState,
+  state => state.filterResultsVisible
+);
